@@ -1,0 +1,8 @@
+{
+  "name": "Kazi Link Kenya",
+  "description": "Find job opportunities across Kenya. Search jobs, create your job seeker profile, upload your CV and apply online with M-Pesa.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
