@@ -48,9 +48,9 @@ function parseViewFromUrl(): string {
   const hash = window.location.hash.replace(/^#\/?/, '').split('?')[0].toLowerCase();
   if (VALID_VIEWS.includes(hash)) return hash;
 
-  // 2. Check path e.g. /kazi-link-kenya/jobs or /jobs
+  // 2. Check path e.g. /kazi-link-kenya/jobs, /kazi-link-kenya-/jobs, or /jobs
   const cleanPath = window.location.pathname
-    .replace(/^\/kazi-link-kenya\/?/i, '')
+    .replace(/^\/kazi-link-kenya-?\/?/i, '')
     .replace(/^\//, '')
     .split('/')[0]
     ?.toLowerCase();

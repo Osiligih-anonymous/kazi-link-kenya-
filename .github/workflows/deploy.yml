@@ -28,16 +28,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci || npm install
+        run: npm install
 
-      - name: Build Production Web App for GitHub Pages
+      - name: Build Web App
         run: npm run build:pages
         env:
-          BASE_URL: /kazi-link-kenya/
-          VITE_BASE_PATH: /kazi-link-kenya/
+          BASE_URL: ./
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4
