@@ -49,8 +49,10 @@ export const JobsView: React.FC<JobsViewProps> = ({
       const matchTitle = job.title.toLowerCase().includes(kw);
       const matchOrg = job.organization.toLowerCase().includes(kw);
       const matchDesc = job.description.toLowerCase().includes(kw);
+      const matchLoc = job.location.toLowerCase().includes(kw);
+      const matchCounty = job.county ? job.county.toLowerCase().includes(kw) : false;
       const matchReq = job.requirements?.some(r => r.toLowerCase().includes(kw));
-      if (!matchTitle && !matchOrg && !matchDesc && !matchReq) return false;
+      if (!matchTitle && !matchOrg && !matchDesc && !matchLoc && !matchCounty && !matchReq) return false;
     }
 
     // Category match

@@ -1,728 +1,1272 @@
 import { JobVacancy, CategoryItem, LocationItem } from '../types';
 
 export const INITIAL_CATEGORIES: CategoryItem[] = [
-  { id: 'cat-cs', name: 'Customer Service', count: 28, iconName: 'Headphones' },
-  { id: 'cat-sales', name: 'Sales', count: 32, iconName: 'TrendingUp' },
-  { id: 'cat-admin', name: 'Administration', count: 24, iconName: 'Briefcase' },
-  { id: 'cat-acc', name: 'Accounting / Finance', count: 19, iconName: 'Calculator' },
-  { id: 'cat-tech', name: 'Technology / IT', count: 21, iconName: 'Laptop' },
-  { id: 'cat-driv', name: 'Driving', count: 18, iconName: 'Car' },
-  { id: 'cat-sec', name: 'Security', count: 15, iconName: 'Shield' },
-  { id: 'cat-ret', name: 'Retail', count: 22, iconName: 'ShoppingBag' },
-  { id: 'cat-hosp', name: 'Hospitality', count: 20, iconName: 'Utensils' },
-  { id: 'cat-agri', name: 'Agriculture', count: 16, iconName: 'Sprout' },
-  { id: 'cat-const', name: 'Construction', count: 12, iconName: 'HardHat' },
-  { id: 'cat-health', name: 'Healthcare', count: 10, iconName: 'Activity' },
-  { id: 'cat-edu', name: 'Education', count: 11, iconName: 'GraduationCap' },
-  { id: 'cat-clean', name: 'Cleaning', count: 14, iconName: 'Sparkles' },
-  { id: 'cat-lab', name: 'General Labour', count: 17, iconName: 'Wrench' },
-  { id: 'cat-oth', name: 'Other', count: 8, iconName: 'Layers' },
+  {
+    "id": "cat-cs",
+    "name": "Customer Service",
+    "count": 2,
+    "iconName": "Headphones"
+  },
+  {
+    "id": "cat-sales",
+    "name": "Sales & Marketing",
+    "count": 4,
+    "iconName": "TrendingUp"
+  },
+  {
+    "id": "cat-admin",
+    "name": "Administration",
+    "count": 3,
+    "iconName": "Briefcase"
+  },
+  {
+    "id": "cat-acc",
+    "name": "Accounting",
+    "count": 1,
+    "iconName": "Calculator"
+  },
+  {
+    "id": "cat-tech",
+    "name": "Technology",
+    "count": 2,
+    "iconName": "Laptop"
+  },
+  {
+    "id": "cat-sec",
+    "name": "Security",
+    "count": 0,
+    "iconName": "Shield"
+  },
+  {
+    "id": "cat-hosp",
+    "name": "Hospitality",
+    "count": 1,
+    "iconName": "Utensils"
+  },
+  {
+    "id": "cat-const",
+    "name": "Construction",
+    "count": 1,
+    "iconName": "HardHat"
+  },
+  {
+    "id": "cat-health",
+    "name": "Healthcare",
+    "count": 8,
+    "iconName": "Activity"
+  },
+  {
+    "id": "cat-edu",
+    "name": "Education",
+    "count": 6,
+    "iconName": "GraduationCap"
+  },
+  {
+    "id": "cat-biz",
+    "name": "Business",
+    "count": 3,
+    "iconName": "TrendingUp"
+  }
 ];
 
 export const INITIAL_LOCATIONS: LocationItem[] = [
-  { id: 'loc-nbo', name: 'Nairobi', county: 'Nairobi County', count: 145 },
-  { id: 'loc-nak', name: 'Nakuru', county: 'Nakuru County', count: 48 },
-  { id: 'loc-mba', name: 'Mombasa', county: 'Mombasa County', count: 46 },
-  { id: 'loc-eld', name: 'Eldoret', county: 'Uasin Gishu County', count: 31 },
-  { id: 'loc-ksm', name: 'Kisumu', county: 'Kisumu County', count: 35 },
-  { id: 'loc-nrk', name: 'Narok', county: 'Narok County', count: 16 },
-  { id: 'loc-mch', name: 'Machakos', county: 'Machakos County', count: 22 },
-  { id: 'loc-thk', name: 'Thika', county: 'Kiambu County', count: 20 },
-  { id: 'loc-kbu', name: 'Kiambu', county: 'Kiambu County', count: 17 },
-  { id: 'loc-rru', name: 'Ruiru', county: 'Kiambu County', count: 14 },
-  { id: 'loc-nye', name: 'Nyeri', county: 'Nyeri County', count: 12 },
-  { id: 'loc-mrg', name: 'Murang\'a', county: 'Murang\'a County', count: 10 },
-  { id: 'loc-glg', name: 'Gilgil', county: 'Nakuru County', count: 7 },
-  { id: 'loc-mld', name: 'Malindi', county: 'Kilifi County', count: 9 },
-  { id: 'loc-nvs', name: 'Naivasha', county: 'Nakuru County', count: 11 },
-  { id: 'loc-krc', name: 'Kericho', county: 'Kericho County', count: 9 },
-  { id: 'loc-ktl', name: 'Kitale', county: 'Trans Nzoia County', count: 8 },
+  {
+    "id": "loc-nbo",
+    "name": "Nairobi",
+    "county": "Nairobi County",
+    "count": 3
+  },
+  {
+    "id": "loc-thk",
+    "name": "Thika",
+    "county": "Kiambu County",
+    "count": 4
+  },
+  {
+    "id": "loc-nye",
+    "name": "Nyeri",
+    "county": "Nyeri County",
+    "count": 3
+  },
+  {
+    "id": "loc-nrk",
+    "name": "Narok",
+    "county": "Narok County",
+    "count": 3
+  },
+  {
+    "id": "loc-mba",
+    "name": "Mombasa",
+    "county": "Mombasa County",
+    "count": 3
+  },
+  {
+    "id": "loc-mrg",
+    "name": "Murang'a",
+    "county": "Murang'a County",
+    "count": 3
+  },
+  {
+    "id": "loc-rru",
+    "name": "Ruiru",
+    "county": "Kiambu County",
+    "count": 4
+  },
+  {
+    "id": "loc-nak",
+    "name": "Nakuru",
+    "county": "Nakuru County",
+    "count": 4
+  },
+  {
+    "id": "loc-glg",
+    "name": "Gilgil",
+    "county": "Nakuru County",
+    "count": 3
+  }
 ];
 
 export const INITIAL_VACANCIES: JobVacancy[] = [
   {
-    id: 'vac-001',
-    title: 'Customer Service Representative',
-    organization: 'SafariCall Solutions Kenya Ltd',
-    location: 'Nairobi',
-    category: 'Customer Service',
-    job_type: 'Full-time',
-    salary_range: 'KSh 30,000 - KSh 45,000',
-    description: 'SafariCall Solutions Kenya Ltd is seeking a friendly, customer-focused Customer Service Representative to join our Nairobi front-office and client operations hub in Upper Hill. You will serve as the first point of contact for inquiries, resolving customer complaints, handling account queries, and maintaining high client satisfaction standards across email, phone, and walk-in channels.',
-    responsibilities: [
-      'Handle incoming phone calls, WhatsApp inquiries, and walk-in client requests professionally and promptly.',
-      'Accurately log customer issues, ticket details, and resolutions into the CRM software.',
-      'Follow up on open customer tickets to ensure issues are resolved within agreed service level agreements (SLAs).',
-      'Provide clear explanations of company services, subscription packages, and payment methods including M-Pesa.',
-      'Escalate complex technical or billing discrepancies to department supervisors.',
-      'Collect customer feedback and recommend workflow improvements to management.'
+    "id": "vac-001",
+    "title": "Junior School Teacher and Assistant Houseparent",
+    "organization": "Pembroke House School",
+    "location": "Gilgil",
+    "county": "Nakuru County",
+    "category": "Education",
+    "job_type": "Full-time",
+    "salary_range": "Salary not disclosed",
+    "description": "Pembroke House School, an accredited British prep boarding school in Gilgil, is seeking a passionate and energetic Junior School Teacher and Assistant Houseparent. You will deliver high quality British National Curriculum instruction to younger pupils while actively participating in boarding house duties, student welfare, and co-curricular sports and arts.",
+    "responsibilities": [
+      "Teach junior school classes according to the British National Curriculum.",
+      "Assist the Houseparent in daily boarding house operations, bedtime routines, and pastoral care.",
+      "Lead or support sports, arts, and outdoor adventurous activities for boarding pupils.",
+      "Maintain continuous communication with parents regarding academic progress and pastoral wellbeing.",
+      "Ensure safeguarding policies and pupil health and safety regulations are strictly adhered to."
     ],
-    requirements: [
-      'Minimum 1-2 years of relevant customer care, call handling, or front-office support experience.',
-      'Excellent verbal and written communication skills in both English and Kiswahili.',
-      'High typing speed (minimum 35 WPM) and proficiency with MS Office (Word, Excel) and email.',
-      'Strong active listening, conflict resolution, and interpersonal abilities.',
-      'Ability to multitask calmly and professionally during peak business hours.'
+    "requirements": [
+      "Bachelor of Education (B.Ed) or PGCE / Diploma in Primary Education.",
+      "Registered with Teachers Service Commission (TSC) or equivalent recognized teaching council.",
+      "Commitment to boarding school life and residential pastoral mentorship.",
+      "Strong communication and interpersonal skills with young learners."
     ],
-    qualifications: [
-      'Diploma in Customer Service Management, Public Relations, Mass Communication, or Business Administration.',
-      'Minimum KCSE mean grade of C (Plain) or equivalent.',
-      'Valid Certificate of Good Conduct from DCI.'
+    "qualifications": [
+      "B.Ed / PGCE Primary Education from an accredited university.",
+      "Valid TSC Registration Certificate.",
+      "Child protection and safeguarding certification is an added advantage."
     ],
-    application_info: 'Shortlisted candidates will be invited for an in-person assessment and interview at our Upper Hill, Nairobi offices.',
-    closing_date: '2026-10-25',
-    status: 'published',
-    created_at: '2026-08-25T08:00:00.000Z',
-    updated_at: '2026-08-25T08:00:00.000Z',
+    "experience_required": "Minimum 2 years of teaching experience in British or international primary schools.",
+    "application_info": "Submit your CV and letter of application addressed to the Headmaster at recruitment@pembrokehouse.sc.ke.",
+    "application_link": "https://www.pembrokehouse.sc.ke",
+    "source_url": "https://www.tes.com/jobs/vacancy/junior-school-teacher-and-assistant-houseparent-gilgil-kenya-2092144",
+    "date_posted": "2026-08-15",
+    "closing_date": "2026-09-30",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-15T08:00:00.000Z",
+    "updated_at": "2026-08-15T08:00:00.000Z"
   },
   {
-    id: 'vac-002',
-    title: 'Sales Representative',
-    organization: 'Twiga Commercial Distributors Ltd',
-    location: 'Nairobi',
-    category: 'Sales',
-    job_type: 'Full-time',
-    salary_range: 'KSh 25,000 - KSh 40,000',
-    description: 'Twiga Commercial Distributors Ltd, a fast-growing distributor of fast-moving consumer goods (FMCG) and household essentials, is hiring an energetic Sales Representative based in Industrial Area, Nairobi. You will be responsible for mapping retail outlets, pitching product lines, securing daily stock orders, and achieving sales targets across key Nairobi routes.',
-    responsibilities: [
-      'Conduct daily field visits to wholesalers, supermarkets, and duka retailers within designated Nairobi routes.',
-      'Present, promote, and sell company product catalogue to new and existing merchant clients.',
-      'Negotiate order quantities, delivery schedules, and payment terms in line with company credit policy.',
-      'Achieve and consistently surpass agreed monthly sales volume and revenue targets.',
-      'Collect market intelligence on competitor pricing, new product launches, and retail trends.',
-      'Prepare daily sales reconciliation reports and route activity summaries for the Territory Manager.'
+    "id": "vac-002",
+    "title": "English Teacher (Years 5-8)",
+    "organization": "Pembroke House School",
+    "location": "Gilgil",
+    "county": "Nakuru County",
+    "category": "Education",
+    "job_type": "Full-time",
+    "salary_range": "Salary not disclosed",
+    "description": "Pembroke House School in Gilgil is seeking a creative and highly motivated English Teacher for Years 5 to 8. The successful candidate will foster a love for English literature, creative writing, and critical literacy skills in preparation for Common Entrance examinations while engaging in school life.",
+    "responsibilities": [
+      "Plan and teach English language and literature to pupils in Years 5 through 8.",
+      "Prepare pupils thoroughly for UK Common Entrance and scholarship examinations.",
+      "Incorporate modern pedagogical methods, drama, reading clubs, and debating activities.",
+      "Assess student work regularly, provide constructive feedback, and maintain academic tracking records.",
+      "Contribute to boarding duties and extracurricular sports/arts programmes."
     ],
-    requirements: [
-      'At least 1-2 years of field sales experience in FMCG, retail distribution, or merchant onboarding.',
-      'Proven track record of meeting daily and monthly sales quotas.',
-      'Energetic, self-driven, and confident communicator fluent in English and Kiswahili.',
-      'Strong negotiation, persuasion, and customer relationship building skills.',
-      'Good geographical knowledge of Nairobi estates, commercial hubs, and retail zones.'
+    "requirements": [
+      "Degree in English Literature / Language or B.Ed (English major).",
+      "Valid TSC registration number.",
+      "Familiarity with British Common Entrance or IGCSE English curriculum.",
+      "High standard of written and spoken English."
     ],
-    qualifications: [
-      'Certificate or Diploma in Sales & Marketing, Business Management, or related field.',
-      'Minimum KCSE mean grade of D+ (Plus) or above.'
+    "qualifications": [
+      "Bachelor’s degree in Education (English) or BA in English with PGCE.",
+      "Active TSC registration.",
+      "Evidence of continuous professional development in literacy instruction."
     ],
-    application_info: 'Monthly commission bonuses are awarded on performance surpassing route targets.',
-    closing_date: '2026-10-28',
-    status: 'published',
-    created_at: '2026-08-25T09:30:00.000Z',
-    updated_at: '2026-08-25T09:30:00.000Z',
+    "experience_required": "At least 3 years teaching English in Upper Primary or Lower Secondary levels.",
+    "application_info": "Apply by emailing your curriculum vitae and motivation letter to recruitment@pembrokehouse.sc.ke.",
+    "application_link": "https://www.pembrokehouse.sc.ke",
+    "source_url": "https://www.tes.com/jobs/vacancy/english-teacher-gilgil-kenya-2094831",
+    "date_posted": "2026-08-20",
+    "closing_date": "2026-10-15",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-20T08:30:00.000Z",
+    "updated_at": "2026-08-20T08:30:00.000Z"
   },
   {
-    id: 'vac-003',
-    title: 'Junior Accountant',
-    organization: 'Baraka Financial Advisors & Associates',
-    location: 'Nairobi',
-    category: 'Accounting / Finance',
-    job_type: 'Full-time',
-    salary_range: 'KSh 35,000 - KSh 50,000',
-    description: 'Baraka Financial Advisors & Associates is recruiting a detail-oriented Junior Accountant for our central Nairobi practice in the CBD. The successful candidate will support day-to-day financial bookkeeping, bank reconciliations, accounts payable and receivable tracking, and statutory tax filings on the KRA iTax and eTIMS platforms.',
-    responsibilities: [
-      'Post daily financial transactions, vendor invoices, petty cash vouchers, and customer receipts into QuickBooks Online.',
-      'Reconcile commercial bank statements, M-Pesa paybill accounts, and petty cash balances on a weekly and monthly basis.',
-      'Prepare and file monthly statutory tax returns on KRA iTax (PAYE, VAT, NSSF, SHA/SHIF, Housing Levy).',
-      'Issue electronic tax invoices through KRA eTIMS and follow up on outstanding client receivables.',
-      'Assist the Senior Accountant in preparing monthly trial balances, expenditure summaries, and audit schedules.',
-      'Maintain organized digital and physical financial filing systems for easy retrieval and compliance.'
+    "id": "vac-003",
+    "title": "Direct Sales Representative - Gilgil",
+    "organization": "Automobile Association of Kenya (AA Kenya)",
+    "location": "Gilgil",
+    "county": "Nakuru County",
+    "category": "Sales & Marketing",
+    "job_type": "Contract",
+    "salary_range": "KSh 20,000 - KSh 35,000",
+    "description": "AA Kenya is recruiting energetic Direct Sales Representatives based in Gilgil. The role focuses on creating market demand for AA Kenya products and services, including motoring membership packages, driving school admissions, vehicle inspection, and insurance brokerage services across the Gilgil area.",
+    "responsibilities": [
+      "Prospect and generate qualified sales leads for AA Kenya products across Gilgil town and surrounding hubs.",
+      "Execute direct field sales activations, corporate visits, and customer presentations.",
+      "Enroll motorists into AA Membership packages and driving school programs.",
+      "Maintain strong customer relationships and provide after-sales assistance.",
+      "Achieve weekly and monthly sales targets set by the regional branch supervisor."
     ],
-    requirements: [
-      'Solid working knowledge of accounting principles, general ledger entries, and financial reconciliation.',
-      'Hands-on proficiency with computerized accounting packages (QuickBooks or Sage) and advanced MS Excel.',
-      'Practical understanding of Kenyan statutory tax filing procedures (KRA iTax & eTIMS).',
-      'High level of mathematical accuracy, integrity, and meticulous attention to detail.',
-      '1-2 years of accounting or bookkeeping experience (internship in an audit firm is welcomed).'
+    "requirements": [
+      "Diploma or Certificate in Sales, Marketing, or Business Administration.",
+      "Proven sales acumen with confident interpersonal and negotiation skills.",
+      "Familiarity with the Gilgil and Nakuru County business ecosystem.",
+      "Self-driven individual capable of working under minimal supervision."
     ],
-    qualifications: [
-      'CPA Foundation / CPA Part II (Sections 3 & 4) or Diploma in Accounting / Finance.',
-      'Bachelor of Commerce / Accounting degree is an added advantage.',
-      'Minimum KCSE mean grade of C+ (Plus) with at least C+ in Mathematics.'
+    "qualifications": [
+      "Diploma or Certificate in Business, Sales, or Marketing.",
+      "KCSE certificate with mean grade C- or above."
     ],
-    application_info: 'Please bring original certificates and academic transcripts when invited for the practical Excel assessment.',
-    closing_date: '2026-10-30',
-    status: 'published',
-    created_at: '2026-08-26T08:00:00.000Z',
-    updated_at: '2026-08-26T08:00:00.000Z',
+    "experience_required": "1 to 2 years practical experience in direct field sales or retail sales promotions.",
+    "application_info": "Apply through the AA Kenya online careers portal or via Fuzu.",
+    "application_link": "https://www.aakenya.co.ke/careers",
+    "source_url": "https://www.fuzu.com/kenya/jobs/direct-sales-representatives-gilgil-automobile-association-of-kenya",
+    "date_posted": "2026-07-28",
+    "closing_date": "2026-09-25",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-07-28T09:00:00.000Z",
+    "updated_at": "2026-07-28T09:00:00.000Z"
   },
   {
-    id: 'vac-004',
-    title: 'Office Administrator',
-    organization: 'Apex Business Chambers Ltd',
-    location: 'Nairobi',
-    category: 'Administration',
-    job_type: 'Full-time',
-    salary_range: 'KSh 30,000 - KSh 45,000',
-    description: 'Apex Business Chambers Ltd is seeking a proactive and organized Office Administrator to oversee general administrative workflow, facility maintenance, procurement of office supplies, and executive calendar scheduling at our modern offices in Westlands, Nairobi.',
-    responsibilities: [
-      'Coordinate day-to-day office operations, executive scheduling, board meetings, and official appointments.',
-      'Supervise front-desk attendants, office messengers, cleaning personnel, and facility maintenance contractors.',
-      'Manage office inventory, stationery reordering, and utility bill settlements (electricity, water, internet).',
-      'Draft official correspondence, memos, meeting minutes, and executive briefing reports.',
-      'Oversee physical document archiving, confidential records management, and electronic document indexing.',
-      'Plan logistical arrangements for company workshops, seminars, and visiting delegates.'
+    "id": "vac-004",
+    "title": "Clinical Nurse - Narok Outreach Clinic",
+    "organization": "Aga Khan University Hospital",
+    "location": "Narok",
+    "county": "Narok County",
+    "category": "Healthcare",
+    "job_type": "Full-time",
+    "salary_range": "Salary not disclosed",
+    "description": "Aga Khan University Hospital, Nairobi (AKUH) is seeking a qualified, patient-focused Clinical Nurse for its Narok Medical Outreach Centre. You will provide primary and acute nursing care, patient triage, wound care, immunization, and medication administration adhering to international Joint Commission International (JCI) quality standards.",
+    "responsibilities": [
+      "Conduct patient intake, vital signs assessment, and clinical triage in the outpatient centre.",
+      "Administer prescribed medications, injections, and intravenous therapies safely.",
+      "Perform wound dressings, minor procedural assistance, and patient health education.",
+      "Maintain accurate patient clinical documentation in the Electronic Health Records (EHR) system.",
+      "Ensure clinical waste management and infection control protocols are rigorously practiced."
     ],
-    requirements: [
-      'At least 2 years of proven administrative or office management experience in a busy professional setting.',
-      'Advanced computer literacy in MS Office Suite (Word, Excel, PowerPoint, Outlook) and Google Workspace.',
-      'Excellent organizational, time management, and multi-tasking skills with high autonomy.',
-      'Strong written and verbal business English communication skills.',
-      'Demonstrated discretion and confidentiality when handling management information.'
+    "requirements": [
+      "Diploma in Community Health Nursing (KRCHN) or Bachelor of Science in Nursing (BScN).",
+      "Valid practicing license from the Nursing Council of Kenya (NCK).",
+      "Valid BLS (Basic Life Support) certification.",
+      "Strong diagnostic, communication, and patient empathy skills."
     ],
-    qualifications: [
-      'Diploma or Degree in Business Administration, Office Management, Secretarial Studies, or related field.',
-      'KCSE mean grade of C (Plain) or above.'
+    "qualifications": [
+      "KRCHN or BScN from an institution recognized by NCK.",
+      "Current, unencumbered Nursing Council of Kenya practicing retention certificate."
     ],
-    application_info: 'Immediate opening for a qualified professional ready to commence work upon completion of onboarding.',
-    closing_date: '2026-10-22',
-    status: 'published',
-    created_at: '2026-08-26T10:15:00.000Z',
-    updated_at: '2026-08-26T10:15:00.000Z',
+    "experience_required": "Minimum 2 years post-internship clinical nursing experience in a busy hospital or outpatient clinic.",
+    "application_info": "Apply via the Aga Khan University Hospital global recruitment portal.",
+    "application_link": "https://www.aku.edu/careers/pages/home.aspx",
+    "source_url": "https://www.myjobmag.co.ke/job/clinical-nurse-narok-aga-khan-university-hospital",
+    "date_posted": "2026-08-12",
+    "closing_date": "2026-09-28",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-12T07:30:00.000Z",
+    "updated_at": "2026-08-12T07:30:00.000Z"
   },
   {
-    id: 'vac-005',
-    title: 'Receptionist',
-    organization: 'Savannah Medical & Wellness Clinic',
-    location: 'Nairobi',
-    category: 'Administration',
-    job_type: 'Full-time',
-    salary_range: 'KSh 25,000 - KSh 35,000',
-    description: 'Savannah Medical & Wellness Clinic, a premier private outpatient healthcare provider in Kilimani, Nairobi, is hiring a courteous and well-groomed Receptionist. You will be the welcoming face of our clinic, greeting patients, managing clinic appointment bookings, and ensuring a comfortable reception lounge environment.',
-    responsibilities: [
-      'Warmly receive and register patients, visitors, and corporate clients arriving at the reception desk.',
-      'Answer switchboard calls, respond to WhatsApp inquiries, and direct queries to respective doctors or departments.',
-      'Schedule doctor consultations, diagnostic appointments, and follow-up medical reviews in the clinic software.',
-      'Collect consultation fees via M-Pesa or card terminal and issue valid clinic receipts.',
-      'Keep the reception lounge, magazine stands, and visitor waiting areas tidy and presentable at all times.',
-      'Maintain strict confidentiality of all patient demographic information and medical visitation logs.'
+    "id": "vac-005",
+    "title": "Direct Sales Representative (Banking)",
+    "organization": "SBM Bank Kenya",
+    "location": "Narok",
+    "county": "Narok County",
+    "category": "Business",
+    "job_type": "Contract",
+    "salary_range": "KSh 25,000 - KSh 45,000",
+    "description": "SBM Bank Kenya is hiring a performance-driven Direct Sales Representative to drive retail banking customer acquisition in Narok town and surrounding commercial hubs. The role involves prospecting business owners, SMEs, and individual professionals to open transactional accounts and access personal credit facilities.",
+    "responsibilities": [
+      "Identify, contact, and acquire new retail and SME banking customers across Narok.",
+      "Sell personal and business current accounts, savings accounts, and fixed deposits.",
+      "Cross-sell digital banking services including mobile banking and card products.",
+      "Assist customers with KYC documentation and bank account opening procedures.",
+      "Consistently meet weekly and monthly sales quotas set by the Branch Manager."
     ],
-    requirements: [
-      'Minimum 1 year experience in a reception, front desk, or customer-facing hospitality role.',
-      'Pleasant personality, warm interpersonal demeanor, and professional personal grooming.',
-      'Clear verbal communication and telephone etiquette in English and Kiswahili.',
-      'Computer literate with ability to learn clinic scheduling and invoicing software quickly.',
-      'Calm composure and patience when dealing with anxious patients or emergency arrivals.'
+    "requirements": [
+      "Diploma or Degree in Business, Marketing, Finance, or related discipline.",
+      "Demonstrated experience in sales of banking or financial service products.",
+      "Strong negotiation, networking, and presentation abilities.",
+      "Good knowledge of the local retail and agricultural commerce in Narok."
     ],
-    qualifications: [
-      'Certificate or Diploma in Front Office Operations, Secretarial Studies, Customer Care, or Hospitality.',
-      'Minimum KCSE mean grade of C- (Minus) or equivalent.'
+    "qualifications": [
+      "Diploma or Bachelor’s degree in a business-related field.",
+      "Certificate of Good Conduct."
     ],
-    application_info: 'Work shift rota includes daytime hours Monday to Saturday.',
-    closing_date: '2026-10-20',
-    status: 'published',
-    created_at: '2026-08-27T08:30:00.000Z',
-    updated_at: '2026-08-27T08:30:00.000Z',
+    "experience_required": "1 to 2 years sales experience within the banking or microfinance sector.",
+    "application_info": "Submit application via BrighterMonday Kenya or directly to SBM Bank careers portal.",
+    "application_link": "https://www.sbmbank.co.ke/careers",
+    "source_url": "https://www.brightermonday.co.ke/listings/direct-sales-representative-narok-sbm-bank",
+    "date_posted": "2026-08-10",
+    "closing_date": "2026-09-30",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-10T10:00:00.000Z",
+    "updated_at": "2026-08-10T10:00:00.000Z"
   },
   {
-    id: 'vac-006',
-    title: 'Driver',
-    organization: 'TransitPoint Fleet Logistics Ltd',
-    location: 'Nairobi',
-    category: 'Driving',
-    job_type: 'Full-time',
-    salary_range: 'KSh 25,000 - KSh 40,000',
-    description: 'TransitPoint Fleet Logistics Ltd is looking for a reliable, disciplined, and safety-conscious Driver to operate company passenger vans and light delivery pickup vehicles across the Nairobi Metropolitan Area. You will safely transport corporate staff, deliver parcels, and carry out vehicle routine upkeep.',
-    responsibilities: [
-      'Safely transport company personnel, clients, and light cargo to scheduled destinations across Nairobi and surrounding counties.',
-      'Carry out daily pre-trip vehicle inspections including engine oil, coolant, brake fluid, tyre pressure, and battery status.',
-      'Accurately maintain vehicle logbooks, fuel receipts, work tickets, and mileage entries.',
-      'Ensure company vehicles are kept clean, serviced on schedule, and inspected regularly.',
-      'Strictly adhere to NTSA traffic rules, speed limits, and road safety regulations at all times.',
-      'Report any vehicle mechanical faults, incidents, or insurance renewal dates to the Fleet Supervisor promptly.'
+    "id": "vac-006",
+    "title": "Pharmaceutical Technologist III",
+    "organization": "Narok County Public Service Board",
+    "location": "Narok",
+    "county": "Narok County",
+    "category": "Healthcare",
+    "job_type": "Full-time",
+    "salary_range": "KSh 32,700 - KSh 45,000",
+    "description": "The Narok County Public Service Board is inviting applications for the position of Pharmaceutical Technologist III to be deployed within Narok County health facilities. The officer will manage drug dispensing, maintain accurate pharmacy inventory, verify doctor prescriptions, and counsel patients on safe drug administration.",
+    "responsibilities": [
+      "Dispense prescription and over-the-counter medications to patients in county health facilities.",
+      "Check prescriptions for correctness of dosage, drug interactions, and contraindications.",
+      "Maintain pharmacy store records, monitor stock levels, and prepare requisitions for essential medicines.",
+      "Provide patient counseling on proper drug use, side effects, and storage conditions.",
+      "Ensure compliance with the Pharmacy and Poisons Act and Ministry of Health guidelines."
     ],
-    requirements: [
-      'Valid Kenyan Smart Driving License (Class B, C, or BCE) with a clean driving record.',
-      'Minimum 4 years of continuous commercial or corporate driving experience within Nairobi.',
-      'Valid Certificate of Good Conduct from the Directorate of Criminal Investigations (DCI).',
-      'Defensive driving certification from AA Kenya or National Youth Service (NYS) is an added advantage.',
-      'Good geographical knowledge of Nairobi roads, bypasses, estates, and traffic patterns.'
+    "requirements": [
+      "Diploma in Pharmacy or Pharmaceutical Technology from a recognized institution.",
+      "Valid enrollment certificate and practicing license from the Pharmacy and Poisons Board (PPB).",
+      "Demonstrated knowledge of public health pharmacy inventory management systems.",
+      "Meet the requirements of Chapter Six of the Constitution of Kenya."
     ],
-    qualifications: [
-      'KCSE Certificate with minimum grade of D (Plain) or above.',
-      'Basic motor vehicle mechanics certificate from a recognized technical institute is a plus.'
+    "qualifications": [
+      "Diploma in Pharmacy or Pharmaceutical Technology from KMTC or recognized college.",
+      "Current Annual Practicing License from the Pharmacy and Poisons Board."
     ],
-    application_info: 'A practical driving test and vehicle inspection assessment will be conducted during the interview process.',
-    closing_date: '2026-10-18',
-    status: 'published',
-    created_at: '2026-08-27T11:00:00.000Z',
-    updated_at: '2026-08-27T11:00:00.000Z',
+    "experience_required": "At least 1 year post-qualification dispensing experience.",
+    "application_info": "Apply online via the Narok County recruitment portal at portal.narok.go.ke/careers.",
+    "application_link": "https://portal.narok.go.ke/careers",
+    "source_url": "https://www.myjobmag.co.ke/job/pharmaceutical-technologist-iii-narok-county-public-service-board",
+    "date_posted": "2026-08-25",
+    "closing_date": "2026-10-05",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-25T08:00:00.000Z",
+    "updated_at": "2026-08-25T08:00:00.000Z"
   },
   {
-    id: 'vac-007',
-    title: 'Security Guard',
-    organization: 'ShieldGuard Patrol Services Kenya',
-    location: 'Nairobi',
-    category: 'Security',
-    job_type: 'Full-time',
-    salary_range: 'KSh 18,000 - KSh 25,000',
-    description: 'ShieldGuard Patrol Services Kenya is recruiting vigilant and disciplined Security Guards to provide physical security guarding, visitor screening, and asset protection across commercial office buildings, warehouses, and residential gated communities in Nairobi.',
-    responsibilities: [
-      'Conduct access control at main entrance gates, screen visitors using handheld metal detectors, and inspect vehicle boots.',
-      'Accurately maintain visitor occurrence books (OB), vehicle registration logs, and gate pass slips.',
-      'Perform routine perimeter foot patrols to identify security vulnerabilities, broken fences, or suspicious activities.',
-      'Monitor premises CCTV feeds and report unusual occurrences immediately to the central control room.',
-      'Enforce property safety protocols, prevent unauthorized entry, and respond swiftly to fire alarms or emergencies.',
-      'Provide a polite and welcoming presence while firmly upholding security regulations for all visitors.'
+    "id": "vac-007",
+    "title": "Information Technology (IT) Trainer",
+    "organization": "Kiharu Technical College",
+    "location": "Murang'a",
+    "county": "Murang'a County",
+    "category": "Education",
+    "job_type": "Full-time",
+    "salary_range": "KSh 28,000 - KSh 42,000",
+    "description": "Kiharu Technical College in Murang’a is looking for a qualified and motivated Information Technology (IT) Trainer. The trainer will prepare and deliver instruction in computer applications, programming, networking fundamentals, and digital literacy to TVET diploma and certificate trainees.",
+    "responsibilities": [
+      "Deliver practical and theoretical lectures in Information Communication Technology courses.",
+      "Prepare instructional materials, course outlines, lesson plans, and practical computer lab sessions.",
+      "Assess and evaluate trainee coursework, exams, and national technical exam projects.",
+      "Supervise computer lab maintenance, software installations, and student network access.",
+      "Guide trainees on industry readiness, software skills, and technological innovations."
     ],
-    requirements: [
-      'Physically fit and alert with no medical impairments affecting standing or patrolling.',
-      'Height requirement: Minimum 5ft 8in for male applicants and 5ft 4in for female applicants.',
-      'Valid Certificate of Good Conduct (not older than 6 months).',
-      'Clear command of basic spoken English and Kiswahili.',
-      'Previous security guard training or NYS service is an added advantage.'
+    "requirements": [
+      "Bachelor’s Degree or Higher Diploma in Computer Science, Information Technology, or Business IT.",
+      "Pedagogical training or TVET trainer qualification is an added advantage.",
+      "Strong proficiency in web programming, databases, and computer systems repair.",
+      "Good classroom management and communication abilities."
     ],
-    qualifications: [
-      'Minimum KCSE mean grade of D (Plain) or D+ (Plus).',
-      'Discharge letter or recommendation from previous security company or local administration chief if entry-level.'
+    "qualifications": [
+      "BSc in Computer Science / Information Technology or Higher National Diploma in ICT.",
+      "TVET CDACC or KNEC technical training certification is preferred."
     ],
-    application_info: 'Uniforms, boots, and company training will be provided upon recruitment.',
-    closing_date: '2026-10-27',
-    status: 'published',
-    created_at: '2026-08-27T14:20:00.000Z',
-    updated_at: '2026-08-27T14:20:00.000Z',
+    "experience_required": "Minimum 2 years of teaching or instructional experience in a TVET or college environment.",
+    "application_info": "Send CV and academic testimonials to info@kiharutechnical.ac.ke.",
+    "application_link": "https://www.kiharutechnical.ac.ke",
+    "source_url": "https://www.careerjet.co.ke/job/it-trainer-kiharu-technical-college-muranga",
+    "date_posted": "2026-08-18",
+    "closing_date": "2026-09-22",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-18T09:00:00.000Z",
+    "updated_at": "2026-08-18T09:00:00.000Z"
   },
   {
-    id: 'vac-008',
-    title: 'Call Centre Agent',
-    organization: 'EchoCall Contact Hub Ltd',
-    location: 'Nairobi',
-    category: 'Customer Service',
-    job_type: 'Full-time',
-    salary_range: 'KSh 25,000 - KSh 38,000',
-    description: 'EchoCall Contact Hub Ltd, a modern business process outsourcing (BPO) centre based on Ngong Road, Nairobi, is hiring enthusiastic Call Centre Agents. You will handle inbound support calls, answer customer questions regarding e-commerce orders and digital banking, and perform outbound tele-surveys in a fast-paced team setting.',
-    responsibilities: [
-      'Manage high volumes of inbound and outbound customer calls in a timely and professional manner.',
-      'Identify customer needs, research issues using internal knowledge bases, and provide accurate product solutions.',
-      'Maintain average handling time (AHT) and first-call resolution (FCR) targets set by the operations manager.',
-      'Accurately log call disposition summaries, customer inquiries, and escalations into the CRM system.',
-      'Handle difficult or frustrated callers with empathy, patience, and de-escalation techniques.',
-      'Participate in ongoing quality coaching sessions to enhance voice etiquette and product knowledge.'
+    "id": "vac-008",
+    "title": "Lecturer in Public Health",
+    "organization": "Murang'a University of Technology",
+    "location": "Murang'a",
+    "county": "Murang'a County",
+    "category": "Education",
+    "job_type": "Full-time",
+    "salary_range": "KSh 99,400 - KSh 140,683",
+    "description": "Murang'a University of Technology (MUT) invites applications from suitably qualified candidates for the position of Lecturer in Public Health in the School of Health Sciences. The role encompasses teaching undergraduate and postgraduate programs, supervising research dissertations, and initiating community health outreach projects.",
+    "responsibilities": [
+      "Teach undergraduate and postgraduate courses in Public Health, Epidemiology, and Community Health.",
+      "Supervise undergraduate and postgraduate student research dissertations and clinical attachments.",
+      "Conduct original scholarly research and publish in reputable peer-reviewed academic journals.",
+      "Participate in curriculum review, academic advisory, and department quality assurance boards.",
+      "Engage in university resource mobilization and community health outreach initiatives."
     ],
-    requirements: [
-      'Excellent spoken English and Kiswahili with clear voice clarity and active listening skills.',
-      'Fast computer keyboard typing speed (at least 30 WPM) and basic computer navigation skills.',
-      'Willingness to work flexible shift schedules (including morning, afternoon, and weekend shifts).',
-      'High emotional intelligence, resilience, and a positive team-player attitude.',
-      'Prior experience in a call centre, BPO, or telephone customer support role is a plus (fresh graduates welcome).'
+    "requirements": [
+      "Ph.D. in Public Health, Epidemiology, or Community Health from a recognized university.",
+      "Master’s degree in Public Health and Bachelor’s degree in a health-related science.",
+      "Demonstrated research output with at least 24 research points from peer-reviewed publications.",
+      "Registered with relevant professional public health bodies in Kenya."
     ],
-    qualifications: [
-      'Certificate, Diploma, or Degree in any field (Mass Media, Communication, IT, or Humanities).',
-      'Minimum KCSE mean grade of C- (Minus) with at least C in English.'
+    "qualifications": [
+      "Doctorate (Ph.D.) degree in Public Health or equivalent.",
+      "Active registration with the Public Health Officers and Technicians Council (PHOTC)."
     ],
-    application_info: 'Comprehensive 2-week paid product and voice training is provided to successful candidates.',
-    closing_date: '2026-10-24',
-    status: 'published',
-    created_at: '2026-08-28T08:00:00.000Z',
-    updated_at: '2026-08-28T08:00:00.000Z',
+    "experience_required": "At least 3 years of university teaching and research experience.",
+    "application_info": "Submit ten (10) copies of application documents to the Vice Chancellor at recruitment@mut.ac.ke.",
+    "application_link": "https://www.mut.ac.ke/careers",
+    "source_url": "https://www.mut.ac.ke/vacancies",
+    "date_posted": "2026-08-22",
+    "closing_date": "2026-10-02",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-22T08:30:00.000Z",
+    "updated_at": "2026-08-22T08:30:00.000Z"
   },
   {
-    id: 'vac-009',
-    title: 'Procurement Assistant',
-    organization: 'PrimeBuild Construction Supplies Ltd',
-    location: 'Nairobi',
-    category: 'Administration',
-    job_type: 'Full-time',
-    salary_range: 'KSh 35,000 - KSh 50,000',
-    description: 'PrimeBuild Construction Supplies Ltd is hiring a motivated Procurement Assistant for our Nairobi head office along Enterprise Road. You will support supplier sourcing, quotation analysis, purchase order (LPO) preparation, vendor database updates, and goods receipt inspections for building materials.',
-    responsibilities: [
-      'Prepare requests for quotation (RFQs) and source competitive pricing from approved suppliers.',
-      'Analyze vendor bids, prepare comparative price schedules, and recommend best-value suppliers.',
-      'Generate local purchase orders (LPOs) in the ERP system and track supplier fulfillment timelines.',
-      'Inspect delivered goods against purchase orders, delivery notes, and quality specifications before signing GRNs.',
-      'Maintain an up-to-date database of prequalified vendors, business permits, and tax compliance certificates.',
-      'Coordinate with the finance team to ensure timely processing of supplier invoices and payments.'
+    "id": "vac-009",
+    "title": "Loan Sales Agent",
+    "organization": "Brisk Credit Limited",
+    "location": "Murang'a",
+    "county": "Murang'a County",
+    "category": "Business",
+    "job_type": "Full-time",
+    "salary_range": "KSh 20,000 - KSh 35,000",
+    "description": "Brisk Credit Limited is seeking energetic Loan Sales Agents to operate from its Murang’a branch. You will market micro-business loans, agricultural credit, and personal loan products to entrepreneurs and civil servants across Murang’a town and surrounding trade centers.",
+    "responsibilities": [
+      "Source new loan applicants through direct field marketing and business community visits.",
+      "Appraise borrower loan applications, business cash flows, and security collateral.",
+      "Conduct preliminary credit vetting and verify applicant KYC and employment details.",
+      "Assist clients with the loan disbursement process and explain repayment schedules.",
+      "Monitor loan portfolios and follow up on early arrears to maintain low default rates."
     ],
-    requirements: [
-      'Solid understanding of supply chain procedures, public/private procurement best practices, and inventory basics.',
-      'Proficiency in ERP systems (SAP, Sage, or QuickBooks) and advanced MS Excel.',
-      'Strong negotiation, numerical evaluation, and commercial communication skills.',
-      'High ethical standards, accountability, and refusal of conflicts of interest.',
-      '1-2 years experience in purchasing, supplies management, or stores coordination.'
+    "requirements": [
+      "Certificate or Diploma in Sales, Microfinance, Cooperative Management, or Business.",
+      "Proven track record in meeting microfinance sales targets.",
+      "Excellent interpersonal communication and relationship management skills.",
+      "Familiarity with business enterprises across Murang’a County."
     ],
-    qualifications: [
-      'Diploma or Degree in Purchasing and Supplies Management, Supply Chain, or CIPS qualification.',
-      'Member of KISM (Kenya Institute of Supplies Management) or student member is an added advantage.',
-      'KCSE mean grade of C (Plain) or above.'
+    "qualifications": [
+      "Diploma in Business Administration, Accounting, or Marketing.",
+      "KCSE minimum grade C-."
     ],
-    application_info: 'Attach copies of KISM registration or academic certificates when submitting your application.',
-    closing_date: '2026-10-29',
-    status: 'published',
-    created_at: '2026-08-28T10:00:00.000Z',
-    updated_at: '2026-08-28T10:00:00.000Z',
+    "experience_required": "Minimum 1 year in microfinance lending, SME field loan sales, or credit verification.",
+    "application_info": "Apply with CV and cover letter to careers@briskcredit.co.ke.",
+    "application_link": "https://www.briskcredit.co.ke",
+    "source_url": "https://www.careerjet.co.ke/job/loan-sales-agent-brisk-credit-muranga",
+    "date_posted": "2026-08-14",
+    "closing_date": "2026-09-29",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-14T09:00:00.000Z",
+    "updated_at": "2026-08-14T09:00:00.000Z"
   },
   {
-    id: 'vac-010',
-    title: 'Storekeeper',
-    organization: 'Ushindi Wholesale & Hardware Ltd',
-    location: 'Nairobi',
-    category: 'Retail',
-    job_type: 'Full-time',
-    salary_range: 'KSh 25,000 - KSh 35,000',
-    description: 'Ushindi Wholesale & Hardware Ltd is looking for an organized and trustworthy Storekeeper to manage daily stock receipts, bin-card entries, warehousing organization, and goods dispatch at our central warehouse in Embakasi, Nairobi.',
-    responsibilities: [
-      'Receive incoming stock consignments, inspect packaging for damages, and verify quantities against delivery notes.',
-      'Accurately post stock receipts, issues, and transfers on physical bin cards and computerized inventory software.',
-      'Organize warehouse shelving, ensure proper labeling of SKUs, and maintain clean storage passageways.',
-      'Issue requested tools, hardware, and goods to sales reps or dispatch drivers upon receipt of authorized requisitions.',
-      'Conduct periodic physical cycle stock counts and investigate variances between physical counts and system balances.',
-      'Enforce warehouse safety, fire prevention guidelines, and theft-prevention measures.'
+    "id": "vac-010",
+    "title": "Pediatric Nurse",
+    "organization": "The Outspan Hospital",
+    "location": "Nyeri",
+    "county": "Nyeri County",
+    "category": "Healthcare",
+    "job_type": "Full-time",
+    "salary_range": "KSh 40,000 - KSh 60,000",
+    "description": "The Outspan Hospital, a leading private referral and teaching hospital in Nyeri, is seeking a compassionate and qualified Pediatric Nurse. The nurse will deliver specialized healthcare to infants, children, and adolescents in the pediatric ward and outpatient pediatric clinic.",
+    "responsibilities": [
+      "Provide comprehensive nursing care to pediatric patients following established hospital protocols.",
+      "Administer medications and IV fluids calculated accurately according to pediatric body weight.",
+      "Monitor and interpret pediatric vital signs, recognizing early signs of clinical deterioration.",
+      "Support and educate parents and guardians regarding childhood illness management and immunization.",
+      "Maintain pediatric resuscitation equipment and ensure optimal ward hygiene."
     ],
-    requirements: [
-      'Minimum 1-2 years experience as a storekeeper, warehouse clerk, or inventory assistant.',
-      'Good numerical skills and familiarity with inventory management software or MS Excel.',
-      'High level of honesty, integrity, and diligence with company assets.',
-      'Physically capable of manual lifting and managing stock movements inside the warehouse.',
-      'Good communication skills in English and Kiswahili.'
+    "requirements": [
+      "Diploma in Community Health Nursing (KRCHN) or Bachelor of Science in Nursing (BScN).",
+      "Higher Diploma in Pediatric Nursing is an added advantage.",
+      "Valid practicing license from the Nursing Council of Kenya.",
+      "Certification in Pediatric Advanced Life Support (PALS) is preferred."
     ],
-    qualifications: [
-      'Certificate or Diploma in Stores Management, Warehousing, Purchasing & Supplies, or Business Administration.',
-      'Minimum KCSE mean grade of D+ (Plus) or above.'
+    "qualifications": [
+      "Diploma in Nursing (KRCHN) / BScN.",
+      "Valid Nursing Council of Kenya Annual Retention Certificate."
     ],
-    application_info: 'References from previous employers will be contacted during background verification.',
-    closing_date: '2026-10-26',
-    status: 'published',
-    created_at: '2026-08-28T13:45:00.000Z',
-    updated_at: '2026-08-28T13:45:00.000Z',
+    "experience_required": "Minimum 2 years clinical pediatric nursing experience in a recognized hospital.",
+    "application_info": "Send your application letter, CV, and certificates to hr@outspanhospital.org.",
+    "application_link": "https://www.outspanhospital.org/careers",
+    "source_url": "https://www.myjobmag.co.ke/job/pediatric-nurse-the-outspan-hospital-nyeri",
+    "date_posted": "2026-08-18",
+    "closing_date": "2026-09-20",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-18T08:00:00.000Z",
+    "updated_at": "2026-08-18T08:00:00.000Z"
   },
   {
-    id: 'vac-011',
-    title: 'Digital Marketing Assistant',
-    organization: 'Mwangaza Brand Studios Kenya',
-    location: 'Nairobi',
-    category: 'Technology / IT',
-    job_type: 'Full-time',
-    salary_range: 'KSh 30,000 - KSh 45,000',
-    description: 'Mwangaza Brand Studios Kenya is looking for a creative, data-aware Digital Marketing Assistant to join our digital team in Kilimani, Nairobi. You will assist in content creation, social media community management (TikTok, Instagram, LinkedIn, Facebook), email newsletters, and running paid Meta/Google ad campaigns.',
-    responsibilities: [
-      'Create engaging social media posts, short reels, infographics, and copy for client brand channels.',
-      'Manage day-to-day community engagement by responding promptly to comments, DMs, and mentions.',
-      'Assist in setting up and monitoring targeted social ad campaigns on Meta Ads Manager and Google Ads.',
-      'Write compelling blog posts, product descriptions, and promotional email broadcasts.',
-      'Track key digital metrics (reach, impressions, click-through rates, conversions) and compile weekly performance reports.',
-      'Stay updated with emerging viral trends, content formats, and algorithmic shifts across Kenyan social platforms.'
+    "id": "vac-011",
+    "title": "Reproductive Health Nurse",
+    "organization": "The Outspan Hospital",
+    "location": "Nyeri",
+    "county": "Nyeri County",
+    "category": "Healthcare",
+    "job_type": "Full-time",
+    "salary_range": "KSh 40,000 - KSh 58,000",
+    "description": "The Outspan Hospital in Nyeri is recruiting a dedicated Reproductive Health Nurse. The officer will provide maternal and reproductive healthcare services including antenatal clinic care, labor and delivery management, postnatal care, family planning, and cervical cancer screening.",
+    "responsibilities": [
+      "Manage normal spontaneous deliveries and assist obstetricians in complicated labor procedures.",
+      "Provide antenatal and postnatal consultations, clinical examinations, and preventive therapies.",
+      "Administer family planning counselling, contraceptives, and cervical screening services.",
+      "Monitor maternal and fetal wellbeing using cardiotocography (CTG) and vital sign tracking.",
+      "Document maternal health indicators accurately in compliance with Ministry of Health registers."
     ],
-    requirements: [
-      'Demonstrable experience managing professional social media accounts or digital campaigns.',
-      'Proficiency with graphic design tools like Canva, Adobe Photoshop, or Illustrator, and video editors like CapCut.',
-      'Excellent copy-writing skills in English and contemporary Sheng/Kiswahili for local audience engagement.',
-      'Basic understanding of SEO principles, Google Analytics, and lead-generation techniques.',
-      '1+ years experience in digital marketing, social media management, or content creation.'
+    "requirements": [
+      "Diploma in KRCHN or BScN with specialization/experience in Midwifery and Reproductive Health.",
+      "Valid registration and current practicing license from the Nursing Council of Kenya.",
+      "Demonstrated competence in Emergency Obstetric and Newborn Care (EmONC).",
+      "Strong clinical assessment, emergency response, and patient counselling capabilities."
     ],
-    qualifications: [
-      'Diploma or Degree in Digital Marketing, Mass Communication, Public Relations, Graphic Design, or IT.',
-      'Portfolio of previous creative work, social pages managed, or graphic samples.'
+    "qualifications": [
+      "KRCHN or BScN with Midwifery training.",
+      "Valid unencumbered NCK license."
     ],
-    application_info: 'Please include links to social media accounts or creative portfolios you have managed.',
-    closing_date: '2026-10-31',
-    status: 'published',
-    created_at: '2026-08-29T08:15:00.000Z',
-    updated_at: '2026-08-29T08:15:00.000Z',
+    "experience_required": "At least 2 years post-qualification experience in maternity or reproductive health units.",
+    "application_info": "Submit application letter and CV to hr@outspanhospital.org.",
+    "application_link": "https://www.outspanhospital.org/careers",
+    "source_url": "https://www.myjobmag.co.ke/job/reproductive-health-nurse-the-outspan-hospital-nyeri",
+    "date_posted": "2026-08-18",
+    "closing_date": "2026-09-20",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-18T08:30:00.000Z",
+    "updated_at": "2026-08-18T08:30:00.000Z"
   },
   {
-    id: 'vac-012',
-    title: 'IT Support Technician',
-    organization: 'ByteLink Network Solutions Kenya',
-    location: 'Nairobi',
-    category: 'Technology / IT',
-    job_type: 'Full-time',
-    salary_range: 'KSh 35,000 - KSh 55,000',
-    description: 'ByteLink Network Solutions Kenya is seeking an experienced IT Support Technician to provide tier-1/2 technical support, LAN/WAN networking maintenance, PC hardware troubleshooting, and printer/VoIP setups for corporate clients across Nairobi.',
-    responsibilities: [
-      'Diagnose and resolve workstation hardware faults, operating system errors (Windows, macOS, Linux), and software glitches.',
-      'Configure, install, and maintain office network equipment including routers, switches, access points, and LAN cabling.',
-      'Set up new user accounts, Microsoft 365 / Google Workspace emails, and antivirus security configurations.',
-      'Troubleshoot network printers, scanners, biometric access control systems, and CCTV IP cameras.',
-      'Perform routine data backups, system patches, and security audits across client servers and endpoints.',
-      'Document IT support tickets, asset inventories, and maintenance schedules in the helpdesk portal.'
+    "id": "vac-012",
+    "title": "Laboratory Technologist",
+    "organization": "The Outspan Hospital",
+    "location": "Nyeri",
+    "county": "Nyeri County",
+    "category": "Healthcare",
+    "job_type": "Full-time",
+    "salary_range": "KSh 35,000 - KSh 50,000",
+    "description": "The Outspan Hospital in Nyeri requires a qualified Medical Laboratory Technologist. You will perform accurate clinical diagnostic tests in hematology, clinical chemistry, microbiology, parasitology, and blood transfusion, supporting clinical decision-making for outpatient and inpatient units.",
+    "responsibilities": [
+      "Collect and prepare patient blood, bodily fluid, and tissue specimens following strict SOPs.",
+      "Perform diagnostic laboratory assays using automated analyzers and microscopy methods.",
+      "Execute internal quality control checks and maintain equipment calibration logs.",
+      "Verify and enter lab results into the Hospital Information Management System promptly.",
+      "Ensure strict adherence to laboratory biosafety standards and waste disposal guidelines."
     ],
-    requirements: [
-      'Solid working knowledge of computer hardware architecture, TCP/IP networking, DHCP, and DNS.',
-      'Experience configuring Microsoft 365, Active Directory, Windows Server, and cloud backup utilities.',
-      'Hands-on ability to crimp network cables, test patch panels, and configure wireless access points.',
-      'Strong analytical problem-solving mindset and excellent customer communication skills.',
-      '2+ years of practical IT support, desktop engineering, or networking experience.'
+    "requirements": [
+      "Diploma or Degree in Medical Laboratory Sciences from an accredited institution.",
+      "Registered with Kenya Medical Laboratory Technicians and Technologists Board (KMLTTB).",
+      "Valid KMLTTB Annual Practicing License.",
+      "Experience operating modern automated clinical biochemistry and hematology analyzers."
     ],
-    qualifications: [
-      'Diploma or Degree in Information Technology, Computer Science, or Electrical/Telecommunication Engineering.',
-      'CompTIA A+, Network+, CCNA, or Microsoft Certified Associate certification is a strong advantage.',
-      'Minimum KCSE mean grade of C (Plain) or above.'
+    "qualifications": [
+      "Diploma / Degree in Medical Laboratory Sciences.",
+      "Active KMLTTB license."
     ],
-    application_info: 'Practical network troubleshooting and PC assembly test will be administered during final interview.',
-    closing_date: '2026-11-04',
-    status: 'published',
-    created_at: '2026-08-29T10:00:00.000Z',
-    updated_at: '2026-08-29T10:00:00.000Z',
+    "experience_required": "Minimum 2 years of hospital diagnostic laboratory experience.",
+    "application_info": "Apply with CV, academic credentials, and KMLTTB license to hr@outspanhospital.org.",
+    "application_link": "https://www.outspanhospital.org",
+    "source_url": "https://www.outspanhospital.org/vacancies/laboratory-technologist",
+    "date_posted": "2026-08-20",
+    "closing_date": "2026-09-25",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-20T09:00:00.000Z",
+    "updated_at": "2026-08-20T09:00:00.000Z"
   },
   {
-    id: 'vac-013',
-    title: 'Sales & Marketing Executive',
-    organization: 'Rift Valley Commercial Distributors Ltd',
-    location: 'Nakuru',
-    category: 'Sales',
-    job_type: 'Full-time',
-    salary_range: 'KSh 30,000 - KSh 45,000',
-    description: 'Rift Valley Commercial Distributors Ltd is hiring an ambitious Sales & Marketing Executive based in Nakuru City. You will spearhead regional business development, establish relationships with agribusinesses, retail stockists, and hotels, and drive brand visibility across Nakuru County.',
-    responsibilities: [
-      'Prospect and onboard new commercial accounts, retailers, institutions, and hospitality clients across Nakuru.',
-      'Conduct product demonstrations, prepare customized price proposals, and close sales contracts.',
-      'Organize regional marketing activations, market day displays, and trade fair exhibitions.',
-      'Maintain regular communication with existing clients to encourage repeat purchases and upsell new product lines.',
-      'Monitor competitor marketing campaigns, market pricing changes, and consumer preferences in the South Rift.',
-      'Submit weekly sales pipelines, customer visit reports, and revenue forecasts to the Regional Director.'
+    "id": "vac-013",
+    "title": "Lecturer, Health Records and Information Management",
+    "organization": "Mount Kenya University (MKU)",
+    "location": "Thika",
+    "county": "Kiambu County",
+    "category": "Education",
+    "job_type": "Full-time",
+    "salary_range": "Salary not disclosed",
+    "description": "Mount Kenya University (MKU) invites applications for the position of Lecturer in Health Records and Information Management based at its Main Campus in Thika. The successful applicant will lecture undergraduate students, develop curricula, supervise academic research, and publish academic research in peer-reviewed journals.",
+    "responsibilities": [
+      "Teach undergraduate courses in Health Records, Health Informatics, and Biostatistics.",
+      "Supervise student research projects, dissertations, and hospital practical attachments.",
+      "Conduct scholarly research, publish articles, and participate in academic conferences.",
+      "Contribute to curriculum reviews and continuous assessment tests.",
+      "Perform academic advisory and mentor students in professional health information ethics."
     ],
-    requirements: [
-      'Minimum 2 years of sales and business development experience in Nakuru or the wider Rift Valley region.',
-      'Proven record of achieving sales targets in B2B or B2C environments.',
-      'Excellent negotiation, public presentation, and relationship-building capabilities.',
-      'Good knowledge of Nakuru business districts, sub-counties (Naivasha, Molo, Gilgil), and trading centers.',
-      'Self-motivated with high energy and ability to work independently with minimal supervision.'
+    "requirements": [
+      "Ph.D. or Master’s Degree in Health Records and Information Management, Health Informatics, or related field.",
+      "At least three (3) years of teaching experience at university level.",
+      "Research publications in refereed academic journals.",
+      "Registered with the relevant health records professional association in Kenya."
     ],
-    qualifications: [
-      'Diploma or Degree in Sales & Marketing, Commerce, Business Administration, or related discipline.',
-      'Minimum KCSE mean grade of C- (Minus) or above.'
+    "qualifications": [
+      "Ph.D. or Master’s degree in Health Records / Health Informatics.",
+      "Bachelor of Science in Health Records & Information Management."
     ],
-    application_info: 'Attractive monthly sales commissions and transport facilitation provided for field travel.',
-    closing_date: '2026-11-02',
-    status: 'published',
-    created_at: '2026-08-29T14:30:00.000Z',
-    updated_at: '2026-08-29T14:30:00.000Z',
+    "experience_required": "At least 3 years teaching and research experience in a recognized university.",
+    "application_info": "Apply online through the Mount Kenya University online recruitment portal at recruitment.mku.ac.ke.",
+    "application_link": "https://recruitment.mku.ac.ke",
+    "source_url": "https://opportunitiesforyoungkenyans.co.ke/mount-kenya-university-mku-recruitment-thika",
+    "date_posted": "2026-08-28",
+    "closing_date": "2026-09-11",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-28T09:00:00.000Z",
+    "updated_at": "2026-08-28T09:00:00.000Z"
   },
   {
-    id: 'vac-014',
-    title: 'Hotel Receptionist',
-    organization: 'Nyali Breeze Coastal Resort & Spa',
-    location: 'Mombasa',
-    category: 'Hospitality',
-    job_type: 'Full-time',
-    salary_range: 'KSh 25,000 - KSh 35,000',
-    description: 'Nyali Breeze Coastal Resort & Spa in Mombasa is looking for a courteous, hospitable, and bilingual Hotel Receptionist. You will welcome international and domestic holidaymakers, manage check-in and check-out procedures, process guest payments, and assist with excursion and dining reservations.',
-    responsibilities: [
-      'Greet arriving resort guests warmly, verify reservations, assign rooms, and complete check-in formalities.',
-      'Provide detailed orientation on hotel amenities, pool hours, dining options, and beach recreational activities.',
-      'Answer front desk phone calls, attend to guest inquiries, and resolve room maintenance or service complaints swiftly.',
-      'Process accommodation billing, room service charges, card payments, and M-Pesa receipts upon guest check-out.',
-      'Coordinate with housekeeping, concierge, and food & beverage teams to accommodate special guest requests.',
-      'Maintain accurate guest registration folios and foreign exchange conversion records.'
+    "id": "vac-014",
+    "title": "Laboratory Manager",
+    "organization": "Kenya Medical Research Institute (KEMRI)",
+    "location": "Thika",
+    "county": "Kiambu County",
+    "category": "Healthcare",
+    "job_type": "Contract",
+    "salary_range": "KSh 120,000 - KSh 180,000",
+    "description": "The Kenya Medical Research Institute (KEMRI) is recruiting a dynamic Laboratory Manager to lead clinical research laboratory operations at its research center in Thika. The role manages laboratory workflows, quality management systems (ISO 15189), equipment maintenance, staff compliance, and clinical research specimen testing.",
+    "responsibilities": [
+      "Oversee day-to-day operations and quality assurance of the clinical research laboratory in Thika.",
+      "Ensure strict compliance with Good Clinical Laboratory Practices (GCLP) and ISO 15189 standards.",
+      "Manage inventory, procurement of diagnostic reagents, and preventive equipment maintenance.",
+      "Supervise medical laboratory scientists and technicians across clinical trial protocols.",
+      "Review and authorize clinical laboratory trial data and specimen management reports."
     ],
-    requirements: [
-      '1-2 years experience in front desk operations in a star-rated hotel, resort, or serviced apartments.',
-      'Professional grooming, warm demeanour, and a genuine passion for coastal hospitality.',
-      'Proficiency in hotel property management systems (PMS) like Opera, Micros, or Fidelio is an asset.',
-      'Fluent in English and Kiswahili (fluency in basic German, French, or Italian is an added advantage).',
-      'Flexibility to work day and night shifts, weekends, and public holidays as standard in hospitality.'
+    "requirements": [
+      "Bachelor’s degree in Medical Laboratory Sciences or related biomedical discipline.",
+      "Master’s degree in Medical Laboratory Sciences, Virology, Molecular Biology, or Public Health.",
+      "Valid registration and current practicing license from KMLTTB.",
+      "Comprehensive knowledge of ISO 15189 laboratory accreditation requirements."
     ],
-    qualifications: [
-      'Certificate or Diploma in Front Office Operations, Hospitality Management from Kenya Utalii College or accredited college.',
-      'Minimum KCSE mean grade of C- (Minus) or equivalent.'
+    "qualifications": [
+      "MSc in Medical Laboratory Science / Biomedical Sciences.",
+      "BSc in Medical Laboratory Science with active KMLTTB license."
     ],
-    application_info: 'Duty meals and uniform provided while on shift at the resort.',
-    closing_date: '2026-10-28',
-    status: 'published',
-    created_at: '2026-08-30T07:45:00.000Z',
-    updated_at: '2026-08-30T07:45:00.000Z',
+    "experience_required": "Minimum 7 years experience in a clinical research laboratory, with at least 5 years in a managerial position.",
+    "application_info": "Submit application via KEMRI careers portal or email as directed on the official advert.",
+    "application_link": "https://www.kemri.go.ke/careers",
+    "source_url": "https://www.corporatestaffing.co.ke/job/laboratory-manager-kemri-thika",
+    "date_posted": "2026-08-24",
+    "closing_date": "2026-09-15",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-24T08:00:00.000Z",
+    "updated_at": "2026-08-24T08:00:00.000Z"
   },
   {
-    id: 'vac-015',
-    title: 'Accounts Assistant',
-    organization: 'Highland Grain Millers Ltd',
-    location: 'Eldoret',
-    category: 'Accounting / Finance',
-    job_type: 'Full-time',
-    salary_range: 'KSh 30,000 - KSh 45,000',
-    description: 'Highland Grain Millers Ltd, a major cereal processing company based in Eldoret, is recruiting an Accounts Assistant. You will support daily ledger postings, weighbridge purchase reconciliations, farmer payment vouchers, and statutory tax compliance.',
-    responsibilities: [
-      'Verify and process farmer grain delivery weighbridge tickets against purchase orders and approved buying rates.',
-      'Post supplier invoices, expense vouchers, and bank payments into QuickBooks accounting software.',
-      'Reconcile grain stock accounts, debtor ledgers, and bank statements at the end of every week.',
-      'Prepare monthly statutory payroll deduction schedules (PAYE, NSSF, SHA/SHIF, and Housing Levy).',
-      'Maintain petty cash records, disburse approved office funds, and conduct periodic cash counts.',
-      'Assist internal and external auditors with supporting document retrieval during financial audits.'
+    "id": "vac-015",
+    "title": "Maintenance Foreman",
+    "organization": "Bidco Africa Ltd",
+    "location": "Thika",
+    "county": "Kiambu County",
+    "category": "Construction",
+    "job_type": "Full-time",
+    "salary_range": "KSh 45,000 - KSh 70,000",
+    "description": "Bidco Africa Ltd, a leading FMCG manufacturer headquartered in Thika, is seeking an experienced Maintenance Foreman. You will supervise preventive maintenance schedules, mechanical plant repairs, utility pumps, piping, and automated packaging lines to ensure uninterrupted manufacturing throughput.",
+    "responsibilities": [
+      "Lead and coordinate daily maintenance technician tasks across processing and packaging plants.",
+      "Implement scheduled preventive maintenance programs for pumps, conveyors, boilers, and gearboxes.",
+      "Diagnose machine breakdowns rapidly and coordinate immediate corrective repairs.",
+      "Manage spare parts inventory, tools requisition, and maintenance log records.",
+      "Enforce workplace safety, occupational health protocols, and environmental standards."
     ],
-    requirements: [
-      'Working knowledge of bookkeeping, double-entry accounting, and inventory accounting concepts.',
-      'Proficiency in computerized accounting systems (QuickBooks, Sage, or Tally) and MS Excel.',
-      'Familiarity with KRA iTax returns and statutory deduction deadlines in Kenya.',
-      'High level of personal integrity, reliability, and precision with numbers.',
-      'At least 1-2 years experience in an accounting or cashier role (manufacturing/agro-processing experience preferred).'
+    "requirements": [
+      "Higher Diploma or Diploma in Mechanical Engineering or Plant Engineering.",
+      "Strong diagnostic skills in industrial hydraulic, pneumatic, and mechanical systems.",
+      "Demonstrated leadership skills in managing factory technical teams.",
+      "Ability to work flexible shift schedules including breakdown on-call periods."
     ],
-    qualifications: [
-      'CPA Part 2 (Section 3 or 4) or Diploma in Accounting / Finance / Business Management.',
-      'Minimum KCSE mean grade of C (Plain) with good grades in Mathematics and English.',
-      'Certificate of Good Conduct from DCI.'
+    "qualifications": [
+      "Higher National Diploma or Diploma in Mechanical / Plant Engineering.",
+      "Safety certification in industrial machinery operations."
     ],
-    application_info: 'Candidates residing in Eldoret or Uasin Gishu County are strongly encouraged to apply.',
-    closing_date: '2026-11-05',
-    status: 'published',
-    created_at: '2026-08-30T09:15:00.000Z',
-    updated_at: '2026-08-30T09:15:00.000Z',
+    "experience_required": "Minimum 4 years industrial plant maintenance experience, with at least 2 years in a supervisory role.",
+    "application_info": "Apply via the Bidco Africa online careers portal.",
+    "application_link": "https://www.bidcoafrica.com/careers",
+    "source_url": "https://www.indeed.com/viewjob?jk=bidco-maintenance-foreman-thika",
+    "date_posted": "2026-08-16",
+    "closing_date": "2026-09-30",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-16T10:00:00.000Z",
+    "updated_at": "2026-08-16T10:00:00.000Z"
   },
   {
-    id: 'vac-016',
-    title: 'Customer Care Officer',
-    organization: 'Victoria Water & Solar Solutions',
-    location: 'Kisumu',
-    category: 'Customer Service',
-    job_type: 'Full-time',
-    salary_range: 'KSh 28,000 - KSh 40,000',
-    description: 'Victoria Water & Solar Solutions is looking for a proactive Customer Care Officer to join our regional branch in Kisumu CBD. You will handle customer inquiries, onboard water pump and solar kit buyers, handle warranty claims, and manage follow-ups across the Western Kenya region.',
-    responsibilities: [
-      'Receive client inquiries via walk-in front desk, telephone calls, and digital platforms.',
-      'Guide customers on solar equipment, water filtration kits, pump capacities, and payment plans.',
-      'Register customer warranty cards and book technical installation appointments for field engineers.',
-      'Follow up with clients after system installation to evaluate satisfaction and collect feedback.',
-      'Handle customer warranty complaints calmly, coordinate replacements, and maintain resolution logs.',
-      'Prepare monthly customer engagement and retention reports for the Branch Manager.'
+    "id": "vac-016",
+    "title": "Graduate Assistant, Health Records",
+    "organization": "Mount Kenya University (MKU)",
+    "location": "Thika",
+    "county": "Kiambu County",
+    "category": "Education",
+    "job_type": "Full-time",
+    "salary_range": "Salary not disclosed",
+    "description": "Mount Kenya University (MKU) has an opening for a Graduate Assistant in the School of Clinical Medicine (Health Records Department) at Thika Main Campus. The Graduate Assistant will support senior faculty in tutorials, student practical sessions, health data lab management, and research data organization.",
+    "responsibilities": [
+      "Assist lecturers in preparing practical tutorial classes and electronic health data demonstrations.",
+      "Guide students during health records practical software lab sessions.",
+      "Assist in invigilation of university continuous assessment tests and final examinations.",
+      "Support department academic staff in research data gathering and literature reviews.",
+      "Maintain departmental records and student attendance registers."
     ],
-    requirements: [
-      '1-2 years experience in customer service, front-office coordination, or client relations.',
-      'Fluent in English, Kiswahili; local regional language knowledge (Dholuo) is an added communication advantage.',
-      'Excellent interpersonal, problem-solving, and conflict resolution skills.',
-      'Computer literate with proficiency in MS Word, Excel, and email software.',
-      'Polite, empathetic, and patient attitude when dealing with challenging client queries.'
+    "requirements": [
+      "Bachelor’s Degree in Health Records and Information Management with First Class or Upper Second Class Honours.",
+      "Demonstrated academic excellence and commitment to pursuing postgraduate studies.",
+      "Strong computer literacy and data analysis capabilities.",
+      "Good organizational and verbal presentation skills."
     ],
-    qualifications: [
-      'Diploma in Customer Relations, Public Relations, Marketing, Business Administration, or related field.',
-      'Minimum KCSE mean grade of C- (Minus) or above.'
+    "qualifications": [
+      "BSc in Health Records & Information Management (First Class or Upper Second Class).",
+      "Certificate of Good Conduct."
     ],
-    application_info: 'Interviews will be conducted at our Kisumu CBD regional offices.',
-    closing_date: '2026-11-08',
-    status: 'published',
-    created_at: '2026-08-30T11:00:00.000Z',
-    updated_at: '2026-08-30T11:00:00.000Z',
+    "experience_required": "Recent graduate with proven academic excellence; internship or clinical attachment experience is an advantage.",
+    "application_info": "Submit application documents through the MKU recruitment portal at recruitment.mku.ac.ke.",
+    "application_link": "https://recruitment.mku.ac.ke",
+    "source_url": "https://opportunitiesforyoungkenyans.co.ke/mount-kenya-university-mku-recruitment-thika",
+    "date_posted": "2026-08-28",
+    "closing_date": "2026-09-11",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-28T10:00:00.000Z",
+    "updated_at": "2026-08-28T10:00:00.000Z"
   },
   {
-    id: 'vac-017',
-    title: 'Logistics Assistant',
-    organization: 'Trans-East Cargo Express Ltd',
-    location: 'Nairobi',
-    category: 'Driving',
-    job_type: 'Full-time',
-    salary_range: 'KSh 30,000 - KSh 45,000',
-    description: 'Trans-East Cargo Express Ltd, a courier and freight dispatch firm with depots across Kenya, is hiring a Logistics Assistant for our dispatch hub on Mombasa Road, Nairobi. You will coordinate daily vehicle route planning, track freight consignments, liaise with drivers, and maintain delivery manifests.',
-    responsibilities: [
-      'Plan daily delivery and collection routes for dispatch riders and van drivers across Nairobi and upcountry.',
-      'Track vehicle GPS locations in real time to ensure timely consignment delivery and route adherence.',
-      'Verify airway bills, cargo manifests, delivery notes, and gate clearance passes.',
-      'Coordinate with warehouse loading teams to ensure consignments are safely packed and labeled.',
-      'Communicate transit updates and ETA notifications to corporate clients and receiving depots.',
-      'Monitor fleet fuel consumption, toll fees, vehicle maintenance logs, and driver shift rosters.'
+    "id": "vac-017",
+    "title": "Network Engineer",
+    "organization": "Zetech University",
+    "location": "Ruiru",
+    "county": "Kiambu County",
+    "category": "Technology",
+    "job_type": "Full-time",
+    "salary_range": "KSh 60,000 - KSh 90,000",
+    "description": "Zetech University is looking for a skilled Network Engineer at its Main Campus along Thika Road in Ruiru. The engineer will design, implement, monitor, and secure the university-wide network infrastructure, covering campus fiber backbone, high-density Wi-Fi networks, firewalls, and server connectivity.",
+    "responsibilities": [
+      "Design, configure, and maintain LAN, WAN, WLAN, and campus fiber optic network connections.",
+      "Manage Cisco switches, routers, MikroTik gateways, and Fortinet / Sophos firewalls.",
+      "Monitor network uptime, bandwidth utilization, latency, and troubleshoot connectivity bottlenecks.",
+      "Implement network security protocols, VLAN segmentation, and VPN remote access.",
+      "Maintain data center server rack wiring, power redundancy, and network documentation."
     ],
-    requirements: [
-      '1-2 years experience in logistics, courier dispatch, transport fleet coordination, or freight forwarding.',
-      'Familiarity with GPS fleet tracking software, logistics ERPs, and MS Excel spreadsheets.',
-      'Good geographical knowledge of Kenyan transport corridors, bypasses, and county cargo hubs.',
-      'Strong coordination, multi-tasking, and fast problem-solving abilities under pressure.',
-      'High integrity, punctuality, and commitment to cargo safety standards.'
+    "requirements": [
+      "Bachelor’s degree in Computer Science, Telecommunications, or Information Technology.",
+      "Professional certifications: CCNA / CCNP, NSE4, or MikroTik MTCNA.",
+      "Solid experience in configuring routing protocols (OSPF, BGP) and enterprise Wi-Fi systems.",
+      "Ability to resolve urgent network outages under pressure."
     ],
-    qualifications: [
-      'Diploma in Logistics & Supply Chain Management, Transport Management, or Business Administration.',
-      'Minimum KCSE mean grade of C- (Minus) or equivalent.'
+    "qualifications": [
+      "BSc in Computer Science / IT / Telecommunications.",
+      "Active CCNA or higher networking certification."
     ],
-    application_info: 'Opportunity for career growth into Fleet Operations Supervisor within our logistics network.',
-    closing_date: '2026-11-06',
-    status: 'published',
-    created_at: '2026-08-30T13:30:00.000Z',
-    updated_at: '2026-08-30T13:30:00.000Z',
+    "experience_required": "Minimum 3 years active experience managing enterprise or campus network infrastructure.",
+    "application_info": "Apply with CV and cover letter to vacancies@zetech.ac.ke.",
+    "application_link": "https://zetech.ac.ke/careers",
+    "source_url": "https://www.corporatestaffing.co.ke/job/network-engineer-zetech-university-ruiru",
+    "date_posted": "2026-08-26",
+    "closing_date": "2026-09-18",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-26T08:30:00.000Z",
+    "updated_at": "2026-08-26T08:30:00.000Z"
   },
   {
-    id: 'vac-018',
-    title: 'Farm Supervisor',
-    organization: 'Menengai Agri-Ventures Kenya Ltd',
-    location: 'Nakuru',
-    category: 'Agriculture',
-    job_type: 'Full-time',
-    salary_range: 'KSh 30,000 - KSh 45,000',
-    description: 'Menengai Agri-Ventures Kenya Ltd is looking for a hands-on and experienced Farm Supervisor to manage daily agricultural operations across our 30-acre mixed farming and dairy enterprise in Rongai, Nakuru County.',
-    responsibilities: [
-      'Supervise daily field activities including land preparation, seeding, drip irrigation, weeding, and crop harvesting.',
-      'Oversee dairy cattle herd management, feeding rations, milking hygiene, and veterinary vaccination schedules.',
-      'Allocate daily duties to farm casual laborers, track attendance, and submit weekly wage muster rolls.',
-      'Monitor farm chemical and fertilizer applications in accordance with KEPHIS health and environmental standards.',
-      'Maintain inventory of farm inputs, tractor fuel, tools, animal feeds, and produce harvest records.',
-      'Submit weekly crop yield, milk production, and farm expenditure reports to the Farm Director.'
+    "id": "vac-018",
+    "title": "Career Service & Mentorship Officer",
+    "organization": "Zetech University",
+    "location": "Ruiru",
+    "county": "Kiambu County",
+    "category": "Administration",
+    "job_type": "Full-time",
+    "salary_range": "KSh 45,000 - KSh 65,000",
+    "description": "Zetech University is seeking an energetic Career Service & Mentorship Officer based at the Ruiru Main Campus. You will guide students and alumni through professional career planning, resume development, job search preparation, corporate internships, and employer networking partnerships.",
+    "responsibilities": [
+      "Organize campus career fairs, employer recruitment presentations, and industry guest speaker talks.",
+      "Conduct one-on-one career counseling, CV review clinics, and mock interview sessions for final-year students.",
+      "Establish and maintain partnerships with corporate employers for student internship and graduate placements.",
+      "Track graduate employability rates and compile destination reports.",
+      "Coordinate the university alumni mentorship program and career development workshops."
     ],
-    requirements: [
-      'Practical, hands-on experience in commercial crop farming and dairy livestock management.',
-      'At least 2-3 years supervisory experience on a working farm or commercial agribusiness.',
-      'Strong team leadership, communication, and labor management skills.',
-      'Working knowledge of drip irrigation systems, tractor maintenance, and pest control.',
-      'Willingness to reside on the farm in Nakuru County.'
+    "requirements": [
+      "Bachelor’s degree in Human Resource Management, Education, Social Sciences, or Business.",
+      "Strong knowledge of contemporary labor market dynamics and employer recruitment expectations in Kenya.",
+      "Superb interpersonal, networking, public speaking, and presentation skills.",
+      "Demonstrated enthusiasm for youth mentorship and career progression."
     ],
-    qualifications: [
-      'Certificate or Diploma in General Agriculture, Animal Health & Production, Horticulture, or Agribusiness.',
-      'Minimum KCSE mean grade of D+ (Plus) or above.'
+    "qualifications": [
+      "Bachelor’s Degree in HR, Education, or Social Sciences.",
+      "Certification in Career Guidance or Coaching is an added advantage."
     ],
-    application_info: 'On-farm supervisor housing, electricity, and clean water are provided.',
-    closing_date: '2026-11-10',
-    status: 'published',
-    created_at: '2026-08-31T08:00:00.000Z',
-    updated_at: '2026-08-31T08:00:00.000Z',
+    "experience_required": "At least 2 to 3 years experience in university career services, HR recruitment, or student placement.",
+    "application_info": "Send CV and credentials quoting reference number to vacancies@zetech.ac.ke.",
+    "application_link": "https://zetech.ac.ke/careers",
+    "source_url": "https://www.corporatestaffing.co.ke/job/career-service-officer-zetech-university-ruiru",
+    "date_posted": "2026-08-26",
+    "closing_date": "2026-09-18",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-26T09:00:00.000Z",
+    "updated_at": "2026-08-26T09:00:00.000Z"
   },
   {
-    id: 'vac-019',
-    title: 'Sales Agent',
-    organization: 'Mara Solar & Micro-Energy Ltd',
-    location: 'Narok',
-    category: 'Sales',
-    job_type: 'Full-time',
-    salary_range: 'KSh 20,000 - KSh 35,000 + Commission',
-    description: 'Mara Solar & Micro-Energy Ltd is expanding clean energy access in Narok County and seeks energetic Sales Agents. You will introduce off-grid pastoralist households, commercial agro-vets, and community businesses to affordable solar home systems, solar water pumps, and pay-as-you-go lighting kits.',
-    responsibilities: [
-      'Prospect and register new customers across Narok Town, Kilgoris, Ololulung\'a, and surrounding trading centers.',
-      'Conduct live product demonstrations of solar kits, battery inverters, and clean energy appliances.',
-      'Assist customers in completing pay-as-you-go mobile financing applications via M-Pesa.',
-      'Achieve monthly units-sold targets for solar lighting kits and solar water pumping solutions.',
-      'Participate in community barazas, market day activations, and livestock market promotional drives.',
-      'Provide basic after-sales customer guidance and collect customer satisfaction feedback.'
+    "id": "vac-019",
+    "title": "Automation Technician - Utilities (Water)",
+    "organization": "Tatu City Limited",
+    "location": "Ruiru",
+    "county": "Kiambu County",
+    "category": "Technology",
+    "job_type": "Full-time",
+    "salary_range": "Salary not disclosed",
+    "description": "Tatu City, the premier Special Economic Zone and mixed-use development in Ruiru, is hiring an Automation Technician - Utilities (Water). The technician will install, calibrate, program, and maintain automated instrumentation, SCADA controls, telemetry systems, and PLC networks across municipal water treatment plants and wastewater facilities.",
+    "responsibilities": [
+      "Maintain SCADA, PLC, and telemetry monitoring systems across Tatu City water distribution networks.",
+      "Calibrate electronic flow meters, pressure sensors, level transmitters, and automated control valves.",
+      "Diagnose and repair automation electrical faults in water pumping stations and treatment plants.",
+      "Perform routine preventive instrumentation testing and maintain telemetry data accuracy.",
+      "Collaborate with utility operations engineers to optimize water conservation and automation reliability."
     ],
-    requirements: [
-      'Strong interpersonal, persuasion, and door-to-door direct sales capabilities.',
-      'High self-drive, resilience, and passion for rural community development and clean technology.',
-      'Fluency in Kiswahili and English; ability to speak Maa is an added advantage for grassroots engagement.',
-      'Good knowledge of Narok County trading centers, topography, and community settlements.',
-      'Previous sales experience in microfinance, solar energy, FMCG, or insurance is a plus (entry-level applicants welcome).'
+    "requirements": [
+      "Diploma or Bachelor’s Degree in Mechatronics, Electrical & Electronics, or Automation Engineering.",
+      "Practical hands-on experience with SCADA software and PLC programming (Siemens, Schneider, or Allen Bradley).",
+      "Understanding of industrial instrumentation, sensors, and telemetry communication networks.",
+      "Valid driving license and ability to handle field troubleshooting across the 5,000-acre development."
     ],
-    qualifications: [
-      'Minimum KCSE mean grade of D (Plain) or D+ (Plus).',
-      'Certificate in Sales, Marketing, or Business is an asset.'
+    "qualifications": [
+      "Diploma or Degree in Mechatronics / Instrumentation / Electrical Engineering.",
+      "EPRA electrician license is an added advantage."
     ],
-    application_info: 'Monthly base retainer plus uncapped commission on every solar unit sold and activated.',
-    closing_date: '2026-11-12',
-    status: 'published',
-    created_at: '2026-08-31T09:30:00.000Z',
-    updated_at: '2026-08-31T09:30:00.000Z',
+    "experience_required": "Minimum 3 years experience in water utility automation, SCADA systems, or industrial process instrumentation.",
+    "application_info": "Submit application through the Tatu City careers portal at tatucity.com/careers.",
+    "application_link": "https://www.tatucity.com/careers",
+    "source_url": "https://www.myjobmag.co.ke/job/automation-technician-tatu-city-ruiru",
+    "date_posted": "2026-08-22",
+    "closing_date": "2026-09-28",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-22T08:00:00.000Z",
+    "updated_at": "2026-08-22T08:00:00.000Z"
   },
   {
-    id: 'vac-020',
-    title: 'Administrative Assistant',
-    organization: 'Kyumbi Commercial Property Consultants',
-    location: 'Machakos',
-    category: 'Administration',
-    job_type: 'Full-time',
-    salary_range: 'KSh 25,000 - KSh 40,000',
-    description: 'Kyumbi Commercial Property Consultants is hiring an organized and personable Administrative Assistant for our branch office in Machakos Town. You will handle front desk reception, draft tenant tenancy agreements, manage utility bills, maintain rent collection registers, and assist property managers.',
-    responsibilities: [
-      'Manage the reception desk, receive visiting property owners, tenants, and contractors courteously.',
-      'Draft official business correspondence, tenancy agreements, inspection notices, and meeting minutes.',
-      'Maintain rent collection records, issue M-Pesa/bank receipts, and assist in compiling monthly rental statements.',
-      'Organize digital and physical property files, title deed records, and tenant lease documents securely.',
-      'Coordinate office supplies procurement, printer maintenance, and utility bill settlements.',
-      'Screen incoming calls, schedule property viewing appointments, and assist property caretakers with maintenance logs.'
+    "id": "vac-020",
+    "title": "Quality Assurance Officer",
+    "organization": "Brookside Dairy Limited",
+    "location": "Ruiru",
+    "county": "Kiambu County",
+    "category": "Healthcare",
+    "job_type": "Full-time",
+    "salary_range": "KSh 50,000 - KSh 75,000",
+    "description": "Brookside Dairy Limited, the leading dairy processing company in East Africa with headquarters in Ruiru, is recruiting a Quality Assurance Officer. The officer will oversee microbiological and chemical testing, line hygiene validation, and compliance with KEBS food safety and ISO 22000 / HACCP standards.",
+    "responsibilities": [
+      "Conduct laboratory chemical and microbiological analysis of raw milk, in-process, and finished dairy goods.",
+      "Monitor Critical Control Points (CCPs) along pasteurization, fermentation, and aseptic packaging lines.",
+      "Perform hygiene swabs, equipment sanitation validation, and clean-in-place (CIP) audit checks.",
+      "Investigate non-conforming product batches and implement root-cause corrective actions.",
+      "Maintain QA inspection logs and ensure compliance with KEBS and ISO 22000 requirements."
     ],
-    requirements: [
-      '1-2 years experience in an administrative support, secretarial, or real estate office role.',
-      'Proficient in MS Office (Word, Excel, PowerPoint) and general internet office tools.',
-      'Excellent verbal and written communication skills in English and Kiswahili.',
-      'Highly organized, trustworthy, and detail-oriented when handling financial records and contracts.',
-      'Positive attitude, professional office demeanor, and strong customer service orientation.'
+    "requirements": [
+      "Bachelor of Science Degree in Food Science and Technology, Dairy Technology, or Microbiology.",
+      "Sound knowledge of HACCP, ISO 22000, and Good Manufacturing Practices (GMP).",
+      "Strong proficiency in laboratory analytical techniques and food safety auditing.",
+      "Attention to detail, analytical mindset, and ability to work in factory shift environments."
     ],
-    qualifications: [
-      'Diploma or Certificate in Business Administration, Office Management, Secretarial Studies, or Real Estate.',
-      'Minimum KCSE mean grade of C- (Minus) or above.'
+    "qualifications": [
+      "BSc in Food Science & Technology / Dairy Technology / Industrial Microbiology.",
+      "HACCP / ISO 22000 Lead Auditor or Implementation Certificate is preferred."
     ],
-    application_info: 'Machakos and Mavoko/Athi River residents are encouraged to apply.',
-    closing_date: '2026-11-15',
-    status: 'published',
-    created_at: '2026-08-31T10:45:00.000Z',
-    updated_at: '2026-08-31T10:45:00.000Z',
+    "experience_required": "Minimum 2 to 3 years quality assurance experience in a high-speed FMCG food or dairy manufacturing plant.",
+    "application_info": "Submit application and CV to hr.recruitment@brookside.co.ke.",
+    "application_link": "https://www.brookside.co.ke",
+    "source_url": "https://www.myjobmag.co.ke/job/quality-assurance-officer-brookside-dairy-ruiru",
+    "date_posted": "2026-08-20",
+    "closing_date": "2026-10-02",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-20T08:00:00.000Z",
+    "updated_at": "2026-08-20T08:00:00.000Z"
   },
+  {
+    "id": "vac-021",
+    "title": "Accounts Clerk",
+    "organization": "Gilani's Supermarket Ltd",
+    "location": "Nakuru",
+    "county": "Nakuru County",
+    "category": "Accounting",
+    "job_type": "Full-time",
+    "salary_range": "KSh 28,000 - KSh 40,000",
+    "description": "Gilani's Supermarket Ltd, Nakuru's largest wholesale and supermarket brand, is hiring an Accounts Clerk. The clerk will perform daily cashier balancing, supplier invoice processing, bank reconciliations, VAT schedule preparations, and general ledger journal postings.",
+    "responsibilities": [
+      "Reconcile daily retail sales cash, card settlements, and M-Pesa till balances.",
+      "Verify incoming supplier delivery notes, matching them against purchase orders and tax invoices.",
+      "Process accounts payable vouchers and prepare electronic supplier payment schedules.",
+      "Assist in monthly physical stock counts and investigate inventory discrepancy variances.",
+      "Maintain well-organized financial document archives for internal and statutory audit purposes."
+    ],
+    "requirements": [
+      "CPA Part 2 (Section 4) or Diploma in Accounting / Finance.",
+      "Hands-on experience with computerized accounting ERP systems and Microsoft Excel.",
+      "Strong numerical accuracy, ethical integrity, and cash reconciliation ability.",
+      "Familiarity with retail point-of-sale systems."
+    ],
+    "qualifications": [
+      "CPA II / Diploma in Accounting or Commerce.",
+      "Proficiency in QuickBooks, Tally, or SAP retail modules."
+    ],
+    "experience_required": "Minimum 2 years bookkeeping or accounts clerk experience in a retail or FMCG environment.",
+    "application_info": "Send CV and testimonials to careers@gilanis.co.ke or deliver to Gilani's Supermarket offices in Nakuru.",
+    "application_link": "https://www.gilanis.co.ke",
+    "source_url": "https://www.myjobmag.co.ke/job/accounts-clerk-gilanis-supermarket-nakuru",
+    "date_posted": "2026-08-16",
+    "closing_date": "2026-09-25",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-16T09:00:00.000Z",
+    "updated_at": "2026-08-16T09:00:00.000Z"
+  },
+  {
+    "id": "vac-022",
+    "title": "Warehouse Manager",
+    "organization": "Gilani's Supermarket Ltd",
+    "location": "Nakuru",
+    "county": "Nakuru County",
+    "category": "Administration",
+    "job_type": "Full-time",
+    "salary_range": "KSh 55,000 - KSh 80,000",
+    "description": "Gilani's Supermarket Ltd is seeking an experienced Warehouse Manager for its central wholesale and retail distribution depot in Nakuru. You will lead goods receipt, inventory storage, stock picking, dispatch fleet loading, and shrinkage control across high-volume FMCG product categories.",
+    "responsibilities": [
+      "Supervise daily warehouse operations including offloading, inspection, bin storage, and dispatch.",
+      "Enforce FIFO/FEFO stock rotation rules to minimize expired or slow-moving goods.",
+      "Lead regular cycle counts and quarterly comprehensive inventory audits with minimal variance.",
+      "Manage a team of over 40 warehouse assistants, forklift operators, and loaders.",
+      "Implement strict warehouse health, safety, fire prevention, and loss prevention controls."
+    ],
+    "requirements": [
+      "Bachelor’s Degree or Higher Diploma in Supply Chain, Logistics, or Business Administration.",
+      "Demonstrated experience operating Warehouse Management Systems (WMS) and barcode scanners.",
+      "Excellent leadership, logistics planning, and conflict resolution skills.",
+      "Solid knowledge of FMCG wholesale and supermarket inventory security."
+    ],
+    "qualifications": [
+      "BSc or Diploma in Supply Chain / Procurement & Logistics Management.",
+      "Member of Kenya Institute of Supplies Management (KISM) is preferred."
+    ],
+    "experience_required": "At least 4 years warehouse and stock management experience, with 2 years at managerial level.",
+    "application_info": "Email application and detailed CV to careers@gilanis.co.ke.",
+    "application_link": "https://www.gilanis.co.ke",
+    "source_url": "https://www.myjobmag.co.ke/job/warehouse-manager-gilanis-supermarket-nakuru",
+    "date_posted": "2026-08-16",
+    "closing_date": "2026-09-25",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-16T09:30:00.000Z",
+    "updated_at": "2026-08-16T09:30:00.000Z"
+  },
+  {
+    "id": "vac-023",
+    "title": "Marketing Executive - Nakuru",
+    "organization": "Mediheal Group of Hospitals",
+    "location": "Nakuru",
+    "county": "Nakuru County",
+    "category": "Sales & Marketing",
+    "job_type": "Full-time",
+    "salary_range": "KSh 40,000 - KSh 60,000",
+    "description": "Mediheal Group of Hospitals is seeking an ambitious Marketing Executive based in Nakuru. The executive will drive patient referrals, build corporate medical insurance partnerships, coordinate community health camps, and promote specialized surgical and diagnostic services across Nakuru County.",
+    "responsibilities": [
+      "Build and sustain relationships with corporate clients, insurance providers, SACCOs, and medical clinics.",
+      "Organize medical outreach camps, health awareness days, and CME sessions for healthcare practitioners.",
+      "Promote tertiary healthcare services including radiology, dialysis, ICU, and surgical packages.",
+      "Prepare marketing proposals, track referral numbers, and submit monthly performance analytics.",
+      "Conduct regular competitor analysis and identify growth opportunities in Nakuru County."
+    ],
+    "requirements": [
+      "Bachelor’s Degree or Diploma in Marketing, Healthcare Administration, or Public Relations.",
+      "Proven experience in hospital marketing, pharmaceutical sales, or diagnostic services marketing.",
+      "Outstanding communication, pitch presentation, and corporate relationship building abilities.",
+      "Dynamic field person with valid driving license or willingness to travel around the Rift Valley."
+    ],
+    "qualifications": [
+      "Degree or Diploma in Marketing / Business Administration / Healthcare Management.",
+      "MSK (Marketing Society of Kenya) membership is an added bonus."
+    ],
+    "experience_required": "Minimum 2 years marketing experience in a hospital, pharmaceutical, or diagnostic institution.",
+    "application_info": "Send application letter and CV to hr.nakuru@medihealgroup.com.",
+    "application_link": "https://medihealgroup.com/careers",
+    "source_url": "https://www.myjobmag.co.ke/job/marketing-executive-mediheal-nakuru",
+    "date_posted": "2026-08-19",
+    "closing_date": "2026-09-22",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-19T08:00:00.000Z",
+    "updated_at": "2026-08-19T08:00:00.000Z"
+  },
+  {
+    "id": "vac-024",
+    "title": "Clinical Nurse - Nakuru East Outreach Clinic",
+    "organization": "Aga Khan University Hospital",
+    "location": "Nakuru",
+    "county": "Nakuru County",
+    "category": "Healthcare",
+    "job_type": "Full-time",
+    "salary_range": "Salary not disclosed",
+    "description": "Aga Khan University Hospital, Nairobi is seeking a qualified Clinical Nurse to deliver patient-centered ambulatory care at its modern Outreach Medical Clinic in Nakuru East. The role involves patient assessment, triage, treatment room procedures, patient counselling, and strict adherence to hospital clinical safety protocols.",
+    "responsibilities": [
+      "Perform initial clinical assessments, triage, and record patient vital signs accurately.",
+      "Provide direct nursing treatments including wound dressing, medication administration, and immunizations.",
+      "Assist visiting consultant physicians and medical officers during patient examinations and minor procedures.",
+      "Educate patients and their families on disease management and wellness maintenance.",
+      "Maintain treatment room stock, sterile instruments, and accurate electronic medical records."
+    ],
+    "requirements": [
+      "Diploma in Community Health Nursing (KRCHN) or Bachelor of Science in Nursing (BScN).",
+      "Valid registration and annual practicing license from the Nursing Council of Kenya (NCK).",
+      "Valid Basic Life Support (BLS) certification.",
+      "Exceptional customer care attitude, empathy, and professional integrity."
+    ],
+    "qualifications": [
+      "KRCHN or BScN.",
+      "Current NCK practicing retention certificate."
+    ],
+    "experience_required": "At least 2 years post-internship nursing experience in an outpatient center or busy hospital.",
+    "application_info": "Apply online through the Aga Khan University careers portal.",
+    "application_link": "https://www.aku.edu/careers/pages/home.aspx",
+    "source_url": "https://www.careerjet.co.ke/job/clinical-nurse-nakuru-aga-khan-university-hospital",
+    "date_posted": "2026-08-14",
+    "closing_date": "2026-09-29",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-14T08:30:00.000Z",
+    "updated_at": "2026-08-14T08:30:00.000Z"
+  },
+  {
+    "id": "vac-025",
+    "title": "Patient Services Cashier / Receptionist",
+    "organization": "Aga Khan Hospital, Mombasa",
+    "location": "Mombasa",
+    "county": "Mombasa County",
+    "category": "Customer Service",
+    "job_type": "Full-time",
+    "salary_range": "KSh 30,000 - KSh 45,000",
+    "description": "The Aga Khan Hospital, Mombasa is looking for a professional and polite Patient Services Cashier / Receptionist. The officer welcomes patients, handles hospital registrations, verifies insurance pre-authorizations, receives cash/card/M-Pesa payments, and delivers top-tier patient service.",
+    "responsibilities": [
+      "Warmly welcome patients, register new profiles, and guide visitors to appropriate hospital clinics.",
+      "Verify medical insurance eligibility, biometrics, and pre-authorization approvals on insurance portals.",
+      "Collect and receipt patient co-payments, cash fees, credit card charges, and Safaricom M-Pesa payments.",
+      "Prepare accurate daily cashier reconciliations and hand over shift collections to finance.",
+      "Handle patient billing inquiries patiently and resolve routine front-desk complaints."
+    ],
+    "requirements": [
+      "Diploma in Front Office Operations, Customer Service, Business Administration, or CPA Part 1.",
+      "Experience in hospital reception, cash handling, and medical insurance portals.",
+      "High standard of courtesy, empathy, and clear spoken communication in English and Swahili.",
+      "Proficiency in computerized billing and Hospital Information Systems."
+    ],
+    "qualifications": [
+      "Diploma in Customer Service / Front Office Management / Business Administration.",
+      "CPA Part 1 or equivalent bookkeeping competence is an advantage."
+    ],
+    "experience_required": "1 to 2 years front-office or cashiering experience in a hospital or hospitality environment.",
+    "application_info": "Send your application letter, CV, and testimonials to recruitment.msa@akhskenya.org.",
+    "application_link": "https://www.akdn.org/careers",
+    "source_url": "https://www.myjobmag.co.ke/job/patient-services-cashier-receptionist-aga-khan-hospital-mombasa",
+    "date_posted": "2026-08-21",
+    "closing_date": "2026-09-26",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-21T08:00:00.000Z",
+    "updated_at": "2026-08-21T08:00:00.000Z"
+  },
+  {
+    "id": "vac-026",
+    "title": "Paediatrics Unit Nurse",
+    "organization": "Aga Khan Hospital, Mombasa",
+    "location": "Mombasa",
+    "county": "Mombasa County",
+    "category": "Healthcare",
+    "job_type": "Full-time",
+    "salary_range": "KSh 45,000 - KSh 65,000",
+    "description": "The Aga Khan Hospital, Mombasa is inviting applications for a Paediatrics Unit Nurse. You will provide comprehensive inpatient care to pediatric patients, administer medications, manage IV therapies, coordinate with pediatricians, and offer reassurance and health education to parents.",
+    "responsibilities": [
+      "Provide bedside nursing care and vital signs monitoring for pediatric inpatients.",
+      "Calculate and administer pediatric drug doses and infusions with zero error tolerance.",
+      "Assess pediatric pain, hydration, and nutritional status, intervening appropriately.",
+      "Assist pediatricians with procedures including lumbar punctures, cannulations, and wound dressings.",
+      "Maintain rigorous infection prevention protocols and update electronic nursing care plans."
+    ],
+    "requirements": [
+      "Diploma in Community Health Nursing (KRCHN) or Bachelor of Science in Nursing (BScN).",
+      "Valid practicing license from the Nursing Council of Kenya.",
+      "Pediatric Life Support (PLS) or Emergency Triage Assessment and Treatment (ETAT) certification.",
+      "Exceptional patience and warmth in handling ill children and concerned families."
+    ],
+    "qualifications": [
+      "KRCHN or BScN.",
+      "Active Nursing Council of Kenya retention certificate."
+    ],
+    "experience_required": "Minimum 2 years experience in a pediatric ward in an accredited hospital.",
+    "application_info": "Submit application with CV and copies of credentials to recruitment.msa@akhskenya.org.",
+    "application_link": "https://www.akdn.org/careers",
+    "source_url": "https://www.myjobmag.co.ke/job/paediatrics-unit-nurse-aga-khan-hospital-mombasa",
+    "date_posted": "2026-08-21",
+    "closing_date": "2026-09-26",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-21T08:30:00.000Z",
+    "updated_at": "2026-08-21T08:30:00.000Z"
+  },
+  {
+    "id": "vac-027",
+    "title": "Marketing & Social Media Executive",
+    "organization": "PrideInn Hotels, Resorts & Camps",
+    "location": "Mombasa",
+    "county": "Mombasa County",
+    "category": "Hospitality",
+    "job_type": "Full-time",
+    "salary_range": "KSh 40,000 - KSh 60,000",
+    "description": "PrideInn Hotels, Resorts & Camps is seeking a creative and energetic Marketing & Social Media Executive for its beach resorts in Mombasa (PrideInn Paradise & PrideInn Flamingo). The role will manage digital brand campaigns, content creation, social media channels, local corporate activations, and influencer collaborations.",
+    "responsibilities": [
+      "Create engaging multimedia content (photography, reels, stories) showcasing resort hospitality and conferences.",
+      "Manage official social media accounts (Instagram, TikTok, LinkedIn, Facebook) and engage with followers.",
+      "Plan and execute targeted digital advertising campaigns to boost holiday bookings and weekend packages.",
+      "Coordinate with corporate sales teams to design promotional flyers, brochures, and email newsletters.",
+      "Track digital marketing campaign metrics, ROI, and submit weekly engagement analytics."
+    ],
+    "requirements": [
+      "Bachelor’s Degree or Diploma in Marketing, Digital Media, Mass Communication, or Hospitality.",
+      "Hands-on graphic design (Canva, Adobe Photoshop) and video editing capabilities.",
+      "Demonstrated portfolio of successful social media campaigns in hospitality or lifestyle brands.",
+      "Energetic communicator with creative copywriting flair."
+    ],
+    "qualifications": [
+      "Degree or Diploma in Marketing / Digital Media / Mass Communication.",
+      "Certifications in Digital Marketing, Google Ads, or Meta Blueprint are an asset."
+    ],
+    "experience_required": "Minimum 2 years practical digital marketing and content creation experience, preferably in the hotel industry.",
+    "application_info": "Send CV, portfolio links, and motivation letter to careers@prideinn.co.ke.",
+    "application_link": "https://prideinn.co.ke/careers",
+    "source_url": "https://www.corporatestaffing.co.ke/job/marketing-social-media-executive-prideinn-mombasa",
+    "date_posted": "2026-08-25",
+    "closing_date": "2026-09-30",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-25T09:00:00.000Z",
+    "updated_at": "2026-08-25T09:00:00.000Z"
+  },
+  {
+    "id": "vac-028",
+    "title": "Front Office Assistant - Cashier",
+    "organization": "The Nairobi Hospital",
+    "location": "Nairobi",
+    "county": "Nairobi County",
+    "category": "Customer Service",
+    "job_type": "Full-time",
+    "salary_range": "KSh 35,000 - KSh 52,000",
+    "description": "The Nairobi Hospital, a premier healthcare institution in East Africa, is recruiting a Front Office Assistant - Cashier. You will provide front-line patient customer service, register outpatient and inpatient admissions, process billing invoices, verify medical insurance smart cards, and receive co-payments.",
+    "responsibilities": [
+      "Welcome patients and visitors courteously, offering guidance on hospital clinics and admission processes.",
+      "Register patients in the hospital management system and issue clinic queue appointments.",
+      "Process medical insurance approvals, electronic claims, and biometric validations with providers.",
+      "Collect and receipt payments via cash, credit cards, bank transfers, and Safaricom M-Pesa.",
+      "Perform shift-end cashier reconciliations and resolve billing inquiries in compliance with hospital standards."
+    ],
+    "requirements": [
+      "Diploma in Front Office Management, Customer Service, Business Administration, or CPA Part 1.",
+      "Demonstrated experience handling computerized cashiering, POS systems, and electronic medical claims.",
+      "Polished interpersonal presentation, patience, and clear verbal communication.",
+      "Ability to work rotating 8-hour shift schedules including nights, weekends, and holidays."
+    ],
+    "qualifications": [
+      "Diploma in Customer Care / Business Administration / Front Office Operations.",
+      "CPA I or equivalent accounting certification."
+    ],
+    "experience_required": "At least 2 years customer service and cashiering experience in a busy hospital or financial institution.",
+    "application_info": "Submit application and CV via The Nairobi Hospital recruitment portal at thenairobihosp.org/careers.",
+    "application_link": "https://thenairobihosp.org/careers",
+    "source_url": "https://www.myjobmag.co.ke/job/front-office-assistant-cashier-the-nairobi-hospital",
+    "date_posted": "2026-08-27",
+    "closing_date": "2026-09-24",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-27T08:00:00.000Z",
+    "updated_at": "2026-08-27T08:00:00.000Z"
+  },
+  {
+    "id": "vac-029",
+    "title": "Office Administrator, Centre of Teaching Excellence",
+    "organization": "Strathmore University",
+    "location": "Nairobi",
+    "county": "Nairobi County",
+    "category": "Administration",
+    "job_type": "Full-time",
+    "salary_range": "KSh 50,000 - KSh 75,000",
+    "description": "Strathmore University in Madaraka, Nairobi, is hiring an Office Administrator for its Centre of Teaching Excellence. The administrator coordinates executive correspondence, manages center budgets, organizes faculty training workshops, manages logistics for guest lecturers, and maintains administrative archives.",
+    "responsibilities": [
+      "Provide comprehensive administrative and executive secretarial support to the Director.",
+      "Organize faculty pedagogical workshops, seminars, and academic symposiums.",
+      "Draft formal correspondence, prepare meeting minutes, and track execution of action items.",
+      "Maintain office filing systems, inventory of office supplies, and coordinate center travel arrangements.",
+      "Manage departmental petty cash, purchase requisitions, and reconcile monthly expense statements."
+    ],
+    "requirements": [
+      "Bachelor’s Degree in Business Administration, Secretarial Studies, Public Relations, or related field.",
+      "Proficiency in Microsoft Office 365, Google Workspace, and enterprise document management.",
+      "Strong organizational abilities with keen attention to calendar and event coordination.",
+      "Discretion in handling confidential faculty evaluations and university academic records."
+    ],
+    "qualifications": [
+      "Bachelor’s degree in Business Administration, Office Management, or Social Sciences.",
+      "Professional secretarial certification (KNEC) or CPS is an added advantage."
+    ],
+    "experience_required": "Minimum 3 years administrative or executive secretarial experience in a higher education or corporate setting.",
+    "application_info": "Submit CV and cover letter to recruitment@strathmore.edu quoting the reference number.",
+    "application_link": "https://strathmore.edu/vacancies",
+    "source_url": "https://www.corporatestaffing.co.ke/job/office-admin-strathmore-university",
+    "date_posted": "2026-08-26",
+    "closing_date": "2026-09-18",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-26T09:30:00.000Z",
+    "updated_at": "2026-08-26T09:30:00.000Z"
+  },
+  {
+    "id": "vac-030",
+    "title": "Regional Relationship Manager - Bancassurance (Nairobi East)",
+    "organization": "Equity Bank Kenya",
+    "location": "Nairobi",
+    "county": "Nairobi County",
+    "category": "Business",
+    "job_type": "Full-time",
+    "salary_range": "KSh 80,000 - KSh 130,000",
+    "description": "Equity Bank Kenya is seeking a dynamic Regional Relationship Manager - Bancassurance for the Nairobi East region. The role manages the delivery of general and life insurance products through the branch network, training branch teams, meeting revenue quotas, and managing high-value corporate client accounts.",
+    "responsibilities": [
+      "Drive growth in insurance premium revenues across designated Equity Bank branches in Nairobi East.",
+      "Coach and support branch sales teams and credit officers on identifying customer insurance needs.",
+      "Structure custom corporate insurance packages for commercial and institutional banking clients.",
+      "Review insurance claims, liaise with underwriters, and ensure prompt settlement for clients.",
+      "Ensure strict regulatory compliance with Insurance Regulatory Authority (IRA) and CBK guidelines."
+    ],
+    "requirements": [
+      "Bachelor’s Degree in Insurance, Actuarial Science, Marketing, Business, or Finance.",
+      "Professional qualifications in insurance: ACII, AIIK, or COP (Certificate of Proficiency).",
+      "Proven track record of exceeding insurance sales targets in banking or insurance brokerages.",
+      "Strategic thinker with excellent stakeholder engagement and relationship management capabilities."
+    ],
+    "qualifications": [
+      "Bachelor’s Degree in Business / Insurance / Actuarial Science.",
+      "Diploma in Insurance (AIIK) or ACII certification."
+    ],
+    "experience_required": "At least 4 years experience in bancassurance, corporate insurance sales, or insurance underwriting.",
+    "application_info": "Submit application through the Equity Bank career portal.",
+    "application_link": "https://equitybank.com/careers",
+    "source_url": "https://www.myjobmag.co.ke/job/regional-relationship-manager-bancassurance-equity-bank",
+    "date_posted": "2026-08-20",
+    "closing_date": "2026-09-25",
+    "status": "published",
+    "is_active": true,
+    "created_at": "2026-08-20T08:30:00.000Z",
+    "updated_at": "2026-08-20T08:30:00.000Z"
+  }
 ];

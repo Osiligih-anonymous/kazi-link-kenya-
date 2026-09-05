@@ -8,9 +8,9 @@ export type JobType =
 
 export type JobStatus = 'draft' | 'published' | 'closed';
 
-export type ApplicationStatus = 'submitted' | 'reviewed' | 'shortlisted' | 'rejected';
+export type ApplicationStatus = 'pending_verification' | 'submitted' | 'reviewed' | 'shortlisted' | 'rejected';
 
-export type PaymentStatus = 'unpaid' | 'pending' | 'paid' | 'failed' | 'cancelled';
+export type PaymentStatus = 'unpaid' | 'pending' | 'awaiting_payment' | 'paid' | 'failed' | 'cancelled';
 
 export interface JobSeekerProfile {
   id: string;
@@ -38,6 +38,7 @@ export interface JobVacancy {
   title: string;
   organization: string;
   location: string;
+  county?: string;
   category: string;
   job_type: JobType;
   salary_range: string;
@@ -45,9 +46,14 @@ export interface JobVacancy {
   responsibilities: string[];
   requirements: string[];
   qualifications: string[];
+  experience_required?: string;
   application_info?: string;
+  application_link?: string;
+  source_url?: string;
+  date_posted?: string;
   closing_date?: string;
   status: JobStatus;
+  is_active?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -81,8 +87,10 @@ export interface PaymentRecord {
   checkout_request_id?: string;
   mpesa_receipt_number?: string;
   transaction_date?: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  status: 'pending' | 'awaiting_verification' | 'completed' | 'failed' | 'cancelled';
   failure_reason?: string;
+  verified_by?: string;
+  verified_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -93,6 +101,7 @@ export interface AdminStats {
   publishedJobs: number;
   draftJobs: number;
   totalApplications: number;
+  pendingVerificationApplications?: number;
   applicationsToday: number;
   applicationsThisWeek: number;
   applicationsThisMonth: number;

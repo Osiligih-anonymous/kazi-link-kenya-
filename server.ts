@@ -2,6 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
+import { INITIAL_VACANCIES } from './src/data/initialData';
 
 dotenv.config();
 
@@ -469,6 +471,239 @@ app.post('/api/mpesa/verify-receipt', (req: Request, res: Response) => {
     checkoutRequestId,
     message: 'M-Pesa payment receipt verified successfully.',
   });
+});
+
+// -------------------------------------------------------------
+// 5. Supabase Synchronization & Diagnostics Endpoints
+// -------------------------------------------------------------
+
+const DEFAULT_SUPABASE_URL = 'https://wsbwuctjqpteiftiapul.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_DmedHnuoDeB_54n8rNqytQ_FP81ztvs';
+
+const SUPABASE_LOC_MAP: Record<string, number> = {
+  'nairobi': 1,
+  'thika': 2,
+  'nyeri': 3,
+  'narok': 4,
+  'mombasa': 5,
+  "murang'a": 6,
+  'ruiru': 7,
+  'nakuru': 8,
+  'gilgil': 9
+};
+
+const SUPABASE_CAT_MAP: Record<string, number> = {
+  'security': 1,
+  'technology': 2,
+  'hospitality': 3,
+  'drivers': 4,
+  'construction': 5,
+  'business': 6,
+  'healthcare': 7,
+  'education': 8,
+  'sales & marketing': 9,
+  'administration': 10,
+  'accounting': 11,
+  'customer service': 12,
+  'internships': 13,
+  'casual jobs': 14,
+  'remote jobs': 15
+};
+
+function parseJobSalaries(salaryStr?: string): { min: number | null; max: number | null } {
+  if (!salaryStr || salaryStr.toLowerCase().includes('not disclosed')) {
+    return { min: null, max: null };
+  }
+  const nums = salaryStr.replace(/,/g, '').match(/\d+/g);
+  if (!nums || nums.length === 0) return { min: null, max: null };
+  if (nums.length === 1) return { min: parseInt(nums[0], 10), max: null };
+  return { min: parseInt(nums[0], 10), max: parseInt(nums[1], 10) };
+}
+
+// 5.1 Check current Supabase Status and Jobs
+app.get('/api/supabase/status', async (req: Request, res: Response) => {
+  try {
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+    const anonKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
+    const client = createClient(supabaseUrl, anonKey, { auth: { persistSession: false } });
+
+    const { data: jobs, error } = await client
+      .from('jobs')
+      .select('id, title, company_name, status, created_at, locations(name, county), job_categories(name)')
+      .order('id', { ascending: true });
+
+    if (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message,
+        supabaseUrl,
+        hasServiceRoleKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
+      });
+      return;
+    }
+
+    const jobList = jobs || [];
+    const placeholderJobs = jobList.filter(j => 
+      !j.company_name || 
+      j.company_name.toLowerCase().includes('example') || 
+      j.company_name.toLowerCase().includes('test company')
+    );
+    const genuineJobs = jobList.filter(j => 
+      j.company_name && 
+      !j.company_name.toLowerCase().includes('example') && 
+      !j.company_name.toLowerCase().includes('test company')
+    );
+
+    res.json({
+      success: true,
+      supabaseUrl,
+      hasServiceRoleKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+      totalJobsInSupabase: jobList.length,
+      placeholderCount: placeholderJobs.length,
+      genuineCount: genuineJobs.length,
+      expectedTotal: INITIAL_VACANCIES.length,
+      jobs: jobList.map(j => ({
+        id: j.id,
+        title: j.title,
+        company_name: j.company_name,
+        location: (j.locations as any)?.name || 'Unknown',
+        county: (j.locations as any)?.county || '',
+        category: (j.job_categories as any)?.name || 'General',
+        status: j.status,
+      }))
+    });
+  } catch (err: any) {
+    console.error('Error checking Supabase status:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 5.2 Retrieve the formatted SQL Migration script
+app.get('/api/supabase/sql', (req: Request, res: Response) => {
+  try {
+    const sqlPath = path.join(process.cwd(), 'supabase_jobs_update.sql');
+    if (fs.existsSync(sqlPath)) {
+      const sqlContent = fs.readFileSync(sqlPath, 'utf-8');
+      res.json({ success: true, sql: sqlContent, totalVacancies: INITIAL_VACANCIES.length });
+    } else {
+      res.status(404).json({ error: 'SQL migration script not found' });
+    }
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5.2b Direct plain-text raw SQL download/view
+app.get('/api/supabase/raw-sql', (req: Request, res: Response) => {
+  try {
+    const sqlPath = path.join(process.cwd(), 'supabase_jobs_update.sql');
+    if (fs.existsSync(sqlPath)) {
+      const sqlContent = fs.readFileSync(sqlPath, 'utf-8');
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.send(sqlContent);
+    } else {
+      res.status(404).send('-- SQL migration script not found');
+    }
+  } catch (err: any) {
+    res.status(500).send(`-- Error: ${err.message}`);
+  }
+});
+
+// 5.3 Sync/Upsert the 30 real vacancies to Supabase
+app.post('/api/supabase/sync', async (req: Request, res: Response) => {
+  try {
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+    const serviceRoleKey = 
+      req.body?.serviceRoleKey?.trim() || 
+      process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+      (req.headers['x-supabase-service-key'] as string)?.trim();
+
+    if (!serviceRoleKey) {
+      res.status(400).json({
+        success: false,
+        error: 'SUPABASE_SERVICE_ROLE_KEY is required to write directly to Supabase with Row Level Security (RLS) enabled.',
+        hint: 'You can get your service_role secret from Supabase Dashboard > Project Settings > API > Project API keys > service_role. Alternatively, copy and execute the generated SQL migration directly in your Supabase SQL Editor.',
+        hasServiceRoleKey: false
+      });
+      return;
+    }
+
+    const adminClient = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+
+    // 1. Delete outdated placeholder example jobs
+    const { error: delError } = await adminClient
+      .from('jobs')
+      .delete()
+      .or('company_name.ilike.%Example%,company_name.ilike.%Test%,company_name.eq.,id.in.(1,2,3,4,5)');
+
+    if (delError) {
+      console.warn('Warning deleting placeholder jobs:', delError);
+    }
+
+    // 2. Prepare the 30 genuine vacancies for insertion
+    const rowsToInsert = INITIAL_VACANCIES.map(v => {
+      const locId = SUPABASE_LOC_MAP[v.location.toLowerCase().trim()] || 1;
+      const catId = SUPABASE_CAT_MAP[v.category.toLowerCase().trim()] || 6;
+      const sal = parseJobSalaries(v.salary_range);
+      
+      const reqText = [
+        'RESPONSIBILITIES:',
+        ...(v.responsibilities || []).map(r => '• ' + r),
+        '',
+        'REQUIREMENTS & QUALIFICATIONS:',
+        ...(v.requirements || []).map(r => '• ' + r),
+        ...(v.qualifications || []).map(q => '• ' + q),
+        v.experience_required ? ('\nExperience: ' + v.experience_required) : '',
+        v.application_info ? ('\nApplication: ' + v.application_info) : '',
+        v.application_link ? ('\nDirect Portal: ' + v.application_link) : '',
+        v.source_url ? ('\nSource: ' + v.source_url) : ''
+      ].filter(Boolean).join('\n');
+
+      return {
+        title: v.title,
+        company_name: v.organization,
+        location_id: locId,
+        category_id: catId,
+        description: v.description,
+        requirements: reqText,
+        salary_min: sal.min,
+        salary_max: sal.max,
+        job_type: v.job_type,
+        deadline: v.closing_date,
+        status: 'approved',
+      };
+    });
+
+    const { data: inserted, error: insertError } = await adminClient
+      .from('jobs')
+      .insert(rowsToInsert)
+      .select('id, title, company_name');
+
+    if (insertError) {
+      console.error('Supabase insert error with service role key:', insertError);
+      res.status(500).json({
+        success: false,
+        error: insertError.message,
+        details: insertError
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: `Successfully updated Supabase! ${inserted?.length || rowsToInsert.length} genuine vacancies inserted.`,
+      count: inserted?.length || rowsToInsert.length,
+      insertedJobs: inserted
+    });
+  } catch (err: any) {
+    console.error('Supabase sync exception:', err);
+    res.status(500).json({
+      success: false,
+      error: err.message || 'An unexpected error occurred during Supabase synchronization.'
+    });
+  }
 });
 
 // Global error handler

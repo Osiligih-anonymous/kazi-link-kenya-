@@ -46,10 +46,16 @@ export const MyApplicationsView: React.FC<MyApplicationsViewProps> = ({ onBrowse
 
   const filtered = applications.filter(a => {
     if (statusFilter === 'all') return true;
+    if (statusFilter === 'pending_verification') {
+      return a.status === 'pending_verification' || a.payment_status === 'awaiting_payment';
+    }
     return a.status === statusFilter;
   });
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, paymentStatus?: string) => {
+    if (status === 'pending_verification' || paymentStatus === 'awaiting_payment') {
+      return 'bg-amber-100 text-amber-900 border-amber-300 font-bold';
+    }
     switch (status) {
       case 'shortlisted':
         return 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
@@ -58,7 +64,7 @@ export const MyApplicationsView: React.FC<MyApplicationsViewProps> = ({ onBrowse
       case 'rejected':
         return 'bg-rose-100 text-rose-800 border-rose-300 font-bold';
       default:
-        return 'bg-amber-100 text-amber-800 border-amber-300 font-bold';
+        return 'bg-slate-100 text-slate-800 border-slate-300 font-bold';
     }
   };
 
@@ -94,17 +100,17 @@ export const MyApplicationsView: React.FC<MyApplicationsViewProps> = ({ onBrowse
 
       {/* Filter Tabs */}
       <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-200 pb-3">
-        {['all', 'submitted', 'reviewed', 'shortlisted', 'rejected'].map((st) => (
+        {['all', 'pending_verification', 'submitted', 'reviewed', 'shortlisted', 'rejected'].map((st) => (
           <button
             key={st}
             onClick={() => setStatusFilter(st)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
               statusFilter === st
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            {st}
+            {st === 'pending_verification' ? 'Pending Verification' : st.charAt(0).toUpperCase() + st.slice(1)}
           </button>
         ))}
       </div>
@@ -144,13 +150,20 @@ export const MyApplicationsView: React.FC<MyApplicationsViewProps> = ({ onBrowse
             >
               <div className="space-y-2 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className={`text-[11px] px-2.5 py-0.5 rounded-full border capitalize ${getStatusBadge(app.status)}`}>
-                    Status: {app.status}
+                  <span className={`text-[11px] px-2.5 py-0.5 rounded-full border ${getStatusBadge(app.status, app.payment_status)}`}>
+                    Status: {app.status === 'pending_verification' ? 'Pending Verification' : app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                   </span>
-                  <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                    M-Pesa Fee: Paid (KSh 150)
-                  </span>
+                  {app.payment_status === 'awaiting_payment' || app.status === 'pending_verification' ? (
+                    <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-300 font-bold flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-amber-700 animate-pulse" />
+                      M-Pesa: Awaiting Verification ({app.payment?.mpesa_receipt_number || 'Code Submitted'})
+                    </span>
+                  ) : (
+                    <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                      M-Pesa Fee: Paid (KSh 150)
+                    </span>
+                  )}
                   <span className="text-[11px] font-mono text-slate-400">
                     Ref: {app.reference_number}
                   </span>
@@ -220,20 +233,40 @@ export const MyApplicationsView: React.FC<MyApplicationsViewProps> = ({ onBrowse
             </div>
 
             {/* M-Pesa Payment Card */}
-            <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 text-xs space-y-2">
-              <div className="flex items-center justify-between font-bold text-emerald-950">
-                <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  M-Pesa Application Fee Payment Verified
-                </span>
-                <span className="bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded">
-                  KSh 150.00 Paid
-                </span>
+            {selectedApp.payment_status === 'awaiting_payment' || selectedApp.status === 'pending_verification' ? (
+              <div className="bg-amber-50/90 border border-amber-300 rounded-2xl p-4 text-xs space-y-2">
+                <div className="flex items-center justify-between font-bold text-amber-950">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-amber-700 animate-pulse" />
+                    Payment Pending Admin Verification
+                  </span>
+                  <span className="bg-amber-200 text-amber-950 px-2 py-0.5 rounded font-bold border border-amber-300">
+                    Awaiting Confirmation
+                  </span>
+                </div>
+                <p className="text-amber-950 text-[11px]">
+                  Submitted M-Pesa Transaction Code: <strong className="font-mono bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">{selectedApp.payment?.mpesa_receipt_number || 'Under Review'}</strong>
+                </p>
+                <p className="text-[11px] text-amber-900 leading-relaxed">
+                  You submitted your manual transaction code for verification. Administrator <strong>Seno Oloisiligayu</strong> will verify your KSh 150 transaction sent to <strong>0790 771 321</strong>. Once confirmed, your application will advance to verified status.
+                </p>
               </div>
-              <p className="text-emerald-900 text-[11px]">
-                Receipt Number: <strong className="font-mono">{selectedApp.payment?.mpesa_receipt_number || 'KLK' + selectedApp.reference_number.substring(4)}</strong>
-              </p>
-            </div>
+            ) : (
+              <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 text-xs space-y-2">
+                <div className="flex items-center justify-between font-bold text-emerald-950">
+                  <span className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    M-Pesa Application Fee Payment Verified
+                  </span>
+                  <span className="bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded">
+                    KSh 150.00 Paid
+                  </span>
+                </div>
+                <p className="text-emerald-900 text-[11px]">
+                  Receipt Number: <strong className="font-mono">{selectedApp.payment?.mpesa_receipt_number || 'KLK' + selectedApp.reference_number.substring(4)}</strong>
+                </p>
+              </div>
+            )}
 
             {/* Cover Letter */}
             <div className="space-y-1.5">

@@ -14,7 +14,9 @@ import {
   FileCheck2, 
   ArrowRight,
   ShieldCheck,
-  Share2
+  Share2,
+  ExternalLink,
+  Award
 } from 'lucide-react';
 
 interface JobDetailsModalProps {
@@ -124,34 +126,44 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
           {/* Key Facts Card */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
             <div>
-              <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Location</p>
+              <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Location & County</p>
               <p className="text-sm font-bold text-slate-900 flex items-center gap-1 mt-0.5">
-                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                {job.location}
+                <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="truncate">{job.location}{job.county ? ` (${job.county})` : ''}</span>
               </p>
             </div>
             <div>
               <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Salary Range</p>
               <p className="text-sm font-bold text-emerald-700 flex items-center gap-1 mt-0.5">
-                <Banknote className="w-3.5 h-3.5 text-amber-600" />
-                {job.salary_range}
+                <Banknote className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span className="truncate">{job.salary_range}</span>
               </p>
             </div>
             <div>
               <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Posted Date</p>
               <p className="text-sm font-bold text-slate-900 flex items-center gap-1 mt-0.5">
-                <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                {formatDate(job.created_at)}
+                <Calendar className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span className="truncate">{formatDate(job.created_at)}</span>
               </p>
             </div>
             <div>
               <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Deadline</p>
               <p className="text-sm font-bold text-rose-700 flex items-center gap-1 mt-0.5">
-                <Clock className="w-3.5 h-3.5 text-rose-600" />
-                {formatDate(job.closing_date)}
+                <Clock className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                <span className="truncate">{formatDate(job.closing_date)}</span>
               </p>
             </div>
           </div>
+
+          {/* Experience Required Banner (if available) */}
+          {job.experience_required && (
+            <div className="flex items-center gap-2.5 px-4 py-2.5 bg-blue-50/70 border border-blue-200/80 rounded-xl text-xs text-blue-900">
+              <Award className="w-4 h-4 text-blue-600 shrink-0" />
+              <span>
+                <strong>Experience Required:</strong> {job.experience_required}
+              </span>
+            </div>
+          )}
 
           {/* Job Overview */}
           <div className="space-y-2">
@@ -215,6 +227,51 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {/* Employer Application Method & Original Advert */}
+          {(job.application_info || job.application_link || job.source_url) && (
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs space-y-3">
+              <div>
+                <p className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <Building className="w-4 h-4 text-emerald-700 shrink-0" />
+                  Direct Employer Application & Source
+                </p>
+                {job.application_info && (
+                  <p className="text-slate-600 mt-1 leading-relaxed">
+                    {job.application_info}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {job.application_link && (
+                  <a
+                    id="job-external-application-link"
+                    href={job.application_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 transition-colors"
+                  >
+                    <span>Employer Portal / Apply Link</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
+                  </a>
+                )}
+
+                {job.source_url && (
+                  <a
+                    id="job-original-source-link"
+                    href={job.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold border border-slate-200 transition-colors"
+                  >
+                    <span>Original Job Advert</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+                  </a>
+                )}
+              </div>
             </div>
           )}
 

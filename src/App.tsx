@@ -357,7 +357,7 @@ function MainApp() {
                   </div>
                   <h3 className="font-bold text-emerald-950 text-base">M-Pesa Verification</h3>
                   <p className="text-xs text-emerald-900/80 leading-relaxed">
-                    Submit your application with a flat <strong>KSh 150</strong> processing fee via instant M-Pesa STK push.
+                    Submit your application with a flat <strong>KSh 150</strong> processing fee via Safaricom M-Pesa (Pochi la Biashara / Manual verification).
                   </p>
                 </div>
               </div>

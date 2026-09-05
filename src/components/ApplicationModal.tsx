@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { 
   uploadCVFile, 
   createApplicationDraft, 
-  markApplicationPaid 
+  markApplicationPaid,
+  submitApplicationAwaitingVerification
 } from '../services/appService';
 import { 
   X, 
@@ -23,7 +24,8 @@ import {
   MapPin,
   CreditCard,
   Receipt,
-  Copy
+  Copy,
+  Clock
 } from 'lucide-react';
 
 interface ApplicationModalProps {
@@ -33,8 +35,8 @@ interface ApplicationModalProps {
   onSuccess: (application: JobApplication) => void;
 }
 
-type Step = 'form' | 'fee_prompt' | 'stk_processing' | 'success' | 'failed';
-type PaymentMethod = 'stk' | 'paybill';
+type Step = 'form' | 'fee_prompt' | 'stk_processing' | 'success' | 'pending_verification' | 'failed';
+type PaymentMethod = 'pochi' | 'stk';
 
 export const ApplicationModal: React.FC<ApplicationModalProps> = ({
   job,
@@ -45,7 +47,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
   const { user, profile, updateCurrentProfile } = useAuth();
 
   const [step, setStep] = useState<Step>('form');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stk');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pochi');
   const [coverLetter, setCoverLetter] = useState('');
   const [mpesaPhone, setMpesaPhone] = useState('');
   const [manualReceiptInput, setManualReceiptInput] = useState('');
@@ -63,7 +65,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
   const [isTestMode, setIsTestMode] = useState(false);
   const [completedApplication, setCompletedApplication] = useState<JobApplication | null>(null);
   const [pollingTimedOut, setPollingTimedOut] = useState(false);
-  const [copiedPaybill, setCopiedPaybill] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
 
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -86,7 +88,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
         `Dear Hiring Manager at ${job?.organization || 'Organization'},\n\nI am writing to express my strong interest in the ${job?.title || 'position'} listed on Kazi Link Kenya. With my experience in ${profile.professional_title || job?.category || 'this field'}, I am confident in my ability to make an immediate positive contribution to your team.\n\nThank you for considering my application.`
       );
       setStep('form');
-      setPaymentMethod('stk');
+      setPaymentMethod('pochi');
       setPaymentError(null);
       setUploadError(null);
       setPollingTimedOut(false);
@@ -302,36 +304,42 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
         setCreatedAppId(draftApp.id);
       }
 
-      // 2. Call backend verification endpoint with static fallback
-      let checkoutReqId = `manual_${Date.now()}_${cleanCode}`;
+      // 1. Submit application into pending verification state (marked as awaiting_payment)
+      const result = await submitApplicationAwaitingVerification({
+        applicationId: appId,
+        vacancyId: job.id,
+        jobSeekerId: user?.id || 'applicant',
+        coverLetter,
+        cvPath: uploadedCvPath,
+        cvFileName: uploadedCvName,
+        phoneNumber: mpesaPhone || '254700000000',
+        mpesaReceiptNumber: cleanCode,
+        amount: 150,
+      });
+
+      // 2. Notify backend verification endpoint with static fallback
       try {
-        const res = await fetch('/api/mpesa/verify-receipt', {
+        await fetch('/api/mpesa/verify-receipt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             receiptNumber: cleanCode,
             phoneNumber: mpesaPhone,
-            applicationId: appId,
+            applicationId: result.application.id,
           }),
         });
-
-        const contentType = res.headers.get('content-type') || '';
-        if (res.ok && contentType.includes('application/json')) {
-          const data = await res.json();
-          if (data.success && data.checkoutRequestId) {
-            checkoutReqId = data.checkoutRequestId;
-          }
-        }
       } catch (err: any) {
         // Fallback for static GitHub Pages host
       }
 
       setIsProcessingPayment(false);
       if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
-      await finalizePaidApplication(appId, cleanCode, checkoutReqId);
+      setMpesaReceipt(cleanCode);
+      setCompletedApplication(result.application);
+      setStep('pending_verification');
     } catch (err: any) {
       setIsProcessingPayment(false);
-      setPaymentError(err.message || 'Receipt code verification failed. Please check the code and try again.');
+      setPaymentError(err.message || 'Receipt code submission failed. Please check the code and try again.');
     }
   };
 
@@ -383,17 +391,17 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
     onClose();
   };
 
-  const handleCopyPaybill = () => {
-    navigator.clipboard.writeText('174379');
-    setCopiedPaybill(true);
-    setTimeout(() => setCopiedPaybill(false), 2000);
+  const handleCopyPhone = () => {
+    navigator.clipboard.writeText('0790771321');
+    setCopiedPhone(true);
+    setTimeout(() => setCopiedPhone(false), 2000);
   };
 
   return (
     <div 
       id="application-modal-overlay"
       className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
-      onClick={step === 'success' ? handleDone : onClose}
+      onClick={step === 'success' || step === 'pending_verification' ? handleDone : onClose}
     >
       <div 
         id="application-modal-content"
@@ -424,7 +432,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
 
           <button
             id="close-app-modal-btn"
-            onClick={step === 'success' ? handleDone : onClose}
+            onClick={step === 'success' || step === 'pending_verification' ? handleDone : onClose}
             className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -568,6 +576,19 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
             <div className="flex rounded-2xl bg-slate-100 p-1 border border-slate-200">
               <button
                 type="button"
+                id="tab-pochi"
+                onClick={() => setPaymentMethod('pochi')}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                  paymentMethod === 'pochi'
+                    ? 'bg-white text-emerald-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Smartphone className="w-4 h-4 text-emerald-600" />
+                Pochi la Biashara / Manual M-Pesa (Direct)
+              </button>
+              <button
+                type="button"
                 id="tab-stk-push"
                 onClick={() => setPaymentMethod('stk')}
                 className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
@@ -576,25 +597,97 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <Smartphone className="w-4 h-4 text-emerald-600" />
-                M-Pesa STK Push (Recommended)
-              </button>
-              <button
-                type="button"
-                id="tab-paybill"
-                onClick={() => setPaymentMethod('paybill')}
-                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                  paymentMethod === 'paybill'
-                    ? 'bg-white text-emerald-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Receipt className="w-4 h-4 text-emerald-600" />
-                Paybill / Enter SMS Receipt
+                <RefreshCw className="w-4 h-4 text-emerald-600" />
+                M-Pesa STK Push
               </button>
             </div>
 
-            {/* TAB 1: STK PUSH */}
+            {/* TAB 1: POCHI LA BIASHARA / SEND MONEY (DIRECT MANUAL) */}
+            {paymentMethod === 'pochi' && (
+              <div className="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                {/* 3-Col Payment Details Card */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                  <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Pochi / Phone Number</span>
+                    <span className="text-base font-black text-slate-900 font-mono tracking-wide">0790 771 321</span>
+                    <button
+                      type="button"
+                      id="copy-pochi-number-btn"
+                      onClick={handleCopyPhone}
+                      className="text-[11px] text-emerald-700 font-bold hover:underline block mx-auto mt-1"
+                    >
+                      {copiedPhone ? '✓ Number Copied!' : 'Copy Number'}
+                    </button>
+                  </div>
+                  <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Recipient Name</span>
+                    <span className="text-xs sm:text-sm font-black text-slate-900 uppercase leading-snug">SENO OLOISILIGAYU</span>
+                    <span className="text-[10px] text-emerald-600 font-medium block mt-1">Verified on M-Pesa</span>
+                  </div>
+                  <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Exact Fee</span>
+                    <span className="text-base font-black text-emerald-700 font-mono">KSh 150</span>
+                    <span className="text-[10px] text-slate-400 block mt-1">Official Fee</span>
+                  </div>
+                </div>
+
+                {/* Step-by-step instructions box */}
+                <div className="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200/90 text-xs text-emerald-950 space-y-1.5">
+                  <p className="font-bold flex items-center gap-1.5 text-emerald-900">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    Simple steps to pay via M-Pesa:
+                  </p>
+                  <ol className="list-decimal list-inside space-y-1 text-slate-700 text-[11px] pl-1 leading-relaxed">
+                    <li>Open M-PESA on your phone (or dial <strong>*334#</strong>).</li>
+                    <li>Select <strong>Lipa na M-PESA</strong> &gt; <strong>Pochi la Biashara</strong> (or <strong>Send Money</strong>).</li>
+                    <li>Enter Phone Number: <strong className="font-mono text-emerald-800">0790 771 321</strong>.</li>
+                    <li>Enter Amount: <strong>150</strong> and your M-Pesa PIN.</li>
+                    <li>Confirm recipient displays <strong className="uppercase">SENO OLOISILIGAYU</strong>.</li>
+                    <li>Paste the 10-character transaction code from your Safaricom SMS below and submit!</li>
+                  </ol>
+                </div>
+
+                {/* Applicant Phone for record */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between">
+                    <span>Your M-Pesa Phone Number</span>
+                    <span className="text-[11px] font-semibold text-emerald-700">e.g. 0712345678</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={mpesaPhone}
+                    onChange={(e) => setMpesaPhone(e.target.value)}
+                    placeholder="0712345678 or 0112345678"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                  />
+                  <p className="text-[10px] text-slate-500">
+                    The Safaricom number you sent payment from (for reference and verification).
+                  </p>
+                </div>
+
+                {/* Receipt Code Input */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between">
+                    <span>M-Pesa Transaction Code (from Safaricom SMS)</span>
+                    <span className="text-[11px] text-emerald-700 font-semibold">e.g. QKH71829KJ</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="manual-receipt-input"
+                    value={manualReceiptInput}
+                    onChange={(e) => setManualReceiptInput(e.target.value.toUpperCase())}
+                    placeholder="e.g. QKH71829KJ"
+                    maxLength={15}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base font-bold font-mono text-slate-900 tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    Enter the 10-character code sent in your M-Pesa confirmation SMS to complete and verify your application.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: STK PUSH */}
             {paymentMethod === 'stk' && (
               <div className="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-200">
                 <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between">
@@ -618,50 +711,6 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
                 <p className="text-[11px] text-slate-500 leading-relaxed">
                   You will receive an instant prompt on this phone asking for your 4-digit M-Pesa PIN to authorize <strong>KSh 150.00</strong>.
                 </p>
-              </div>
-            )}
-
-            {/* TAB 2: MANUAL PAYBILL */}
-            {paymentMethod === 'paybill' && (
-              <div className="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                  <div className="bg-white p-3 rounded-xl border border-slate-200">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Business No</span>
-                    <span className="text-base font-black text-slate-900 font-mono">174379</span>
-                    <button
-                      type="button"
-                      onClick={handleCopyPaybill}
-                      className="text-[10px] text-emerald-700 font-bold hover:underline block mx-auto mt-0.5"
-                    >
-                      {copiedPaybill ? 'Copied!' : 'Copy'}
-                    </button>
-                  </div>
-                  <div className="bg-white p-3 rounded-xl border border-slate-200">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Account No</span>
-                    <span className="text-base font-black text-slate-900 font-mono">KLK-{job.id}</span>
-                  </div>
-                  <div className="bg-white p-3 rounded-xl border border-slate-200">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Amount</span>
-                    <span className="text-base font-black text-emerald-700 font-mono">KSh 150</span>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider">
-                    Enter M-Pesa Receipt Code (from Safaricom SMS)
-                  </label>
-                  <input
-                    type="text"
-                    value={manualReceiptInput}
-                    onChange={(e) => setManualReceiptInput(e.target.value.toUpperCase())}
-                    placeholder="e.g. QKH71829KJ"
-                    maxLength={15}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base font-bold font-mono text-slate-900 tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
-                  />
-                  <p className="text-[11px] text-slate-500">
-                    Enter the 10-character transaction code sent in your M-Pesa confirmation SMS.
-                  </p>
-                </div>
               </div>
             )}
 
@@ -807,6 +856,72 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
           </div>
         )}
 
+        {/* STEP 4B: PENDING VERIFICATION STATE (MANUAL M-PESA CODE SUBMISSION) */}
+        {step === 'pending_verification' && (
+          <div className="p-6 sm:p-8 space-y-6 flex-1 text-center text-slate-800">
+            <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-md shadow-amber-500/10 border-2 border-amber-300">
+              <Clock className="w-10 h-10 animate-pulse text-amber-700" />
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 font-extrabold text-xs uppercase tracking-wider">
+                <Clock className="w-3.5 h-3.5 text-amber-700" />
+                Pending Verification
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 font-serif">
+                Application Submitted!
+              </h3>
+              <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                Your application for <strong>{job.title}</strong> at <strong>{job.organization}</strong> has been received and is marked as <strong>awaiting payment confirmation</strong> until admin verifies your M-Pesa transaction code.
+              </p>
+            </div>
+
+            {/* Verification Receipt Card */}
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 text-left text-xs space-y-2.5 max-w-md mx-auto">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="font-semibold text-slate-500">Application Reference</span>
+                <span className="font-mono font-bold text-slate-900">{completedApplication?.reference_number || 'KLK-2026-CONF'}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="font-semibold text-slate-500">M-Pesa Transaction Code</span>
+                <span className="font-mono font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded tracking-wider">
+                  {mpesaReceipt || manualReceiptInput}
+                </span>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="font-semibold text-slate-500">Recipient Phone / Pochi</span>
+                <span className="font-bold text-slate-900 font-mono">0790 771 321 (SENO OLOISILIGAYU)</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="font-semibold text-slate-500">Fee Amount</span>
+                <span className="font-bold text-slate-900">KSh 150.00</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="font-semibold text-slate-500">Applicant Phone</span>
+                <span className="font-medium text-slate-800">{mpesaPhone || 'Registered Phone'}</span>
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <span className="font-semibold text-slate-500">Payment Status</span>
+                <span className="font-bold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-amber-700" />
+                  Awaiting Payment Confirmation
+                </span>
+              </div>
+            </div>
+
+            {/* Explanatory Notice */}
+            <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl text-xs text-amber-950 text-left max-w-md mx-auto space-y-1">
+              <p className="font-bold flex items-center gap-1.5 text-amber-900">
+                <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0" />
+                What happens next?
+              </p>
+              <p className="text-[11px] text-slate-700 leading-relaxed">
+                Our recruitment administrator (Seno Oloisiligayu) will confirm receipt of your KSh 150 on <strong>0790 771 321</strong>. Once confirmed, your application will immediately update to <strong>Verified &amp; Submitted</strong>. You can monitor your application anytime under <strong>My Applications</strong>.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* STEP 5: FAILED / CANCELLED PAYMENT */}
         {step === 'failed' && (
           <div className="p-6 sm:p-8 space-y-6 flex-1 text-center text-slate-800">
@@ -880,7 +995,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
                   disabled={isProcessingPayment}
                   className="px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
                 >
-                  {isProcessingPayment ? 'Verifying Receipt...' : 'Verify Receipt & Submit'}
+                  {isProcessingPayment ? 'Submitting Application...' : 'Submit Application (Pending Verification)'}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               )}
@@ -910,14 +1025,15 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
             </div>
           )}
 
-          {step === 'success' && (
+          {(step === 'success' || step === 'pending_verification') && (
             <button
               type="button"
               id="success-done-btn"
               onClick={handleDone}
-              className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-md transition-all"
+              className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"
             >
-              View My Applications
+              <span>View in My Applications</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           )}
 

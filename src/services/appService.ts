@@ -16,11 +16,11 @@ import { INITIAL_CATEGORIES, INITIAL_LOCATIONS, INITIAL_VACANCIES } from '../dat
 // Local storage backup keys to ensure seamless persistence and fallback
 const STORAGE_KEYS = {
   PROFILES: 'klk_profiles_v1',
-  VACANCIES: 'klk_vacancies_v2',
+  VACANCIES: 'klk_vacancies_v3',
   APPLICATIONS: 'klk_applications_v1',
   PAYMENTS: 'klk_payments_v1',
-  CATEGORIES: 'klk_categories_v2',
-  LOCATIONS: 'klk_locations_v2',
+  CATEGORIES: 'klk_categories_v3',
+  LOCATIONS: 'klk_locations_v3',
   ACTIVE_USER: 'klk_active_user_v1',
   CV_FILES: 'klk_cv_blobs_v1',
 };
@@ -47,7 +47,7 @@ function saveStored<T>(key: string, val: T): void {
 // Initialize seed data if not present or outdated
 export function initializeStorage() {
   const existingVacancies = getStored<JobVacancy[]>(STORAGE_KEYS.VACANCIES, []);
-  if (!existingVacancies || existingVacancies.length < INITIAL_VACANCIES.length) {
+  if (!existingVacancies || existingVacancies.length < INITIAL_VACANCIES.length || !existingVacancies.some(v => v.id === 'vac-030')) {
     saveStored(STORAGE_KEYS.VACANCIES, INITIAL_VACANCIES);
   }
   saveStored(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
@@ -106,6 +106,7 @@ export function mapSupabaseJobToVacancy(row: any): JobVacancy {
     title: row.title || 'Job Vacancy',
     organization: row.company_name || row.organization || 'Organization',
     location: locName,
+    county: row.locations?.county || row.county,
     category: catName,
     job_type: (row.job_type as JobType) || 'Full-time',
     salary_range: salaryStr,
@@ -113,9 +114,14 @@ export function mapSupabaseJobToVacancy(row: any): JobVacancy {
     responsibilities: reqs.slice(0, 3).length > 0 ? reqs.slice(0, 3) : ['Perform assigned duties diligently adhering to company operating standards'],
     requirements: reqs.length > 0 ? reqs : ['Relevant educational qualification', 'Strong interpersonal and work ethic skills'],
     qualifications: reqs.length > 0 ? reqs : ['Certificate / Diploma in relevant field of study'],
+    experience_required: row.experience_required || 'Relevant industry experience',
     application_info: 'Apply online through Kazi Link Kenya. Application processing fee is KSh 150.',
+    application_link: row.application_link,
+    source_url: row.source_url,
+    date_posted: row.created_at ? row.created_at.split('T')[0] : '2026-08-01',
     closing_date: row.deadline || row.closing_date || '2026-12-31',
     status: mappedStatus,
+    is_active: row.is_active !== undefined ? Boolean(row.is_active) : true,
     created_at: row.created_at || new Date().toISOString(),
     updated_at: row.created_at || new Date().toISOString(),
   };
@@ -143,7 +149,18 @@ export async function fetchVacancies(options?: {
       .order('created_at', { ascending: false });
 
     if (!error && data && data.length > 0) {
-      supabaseJobs = data.map(mapSupabaseJobToVacancy);
+      // Exclude legacy demo/placeholder entries from Supabase
+      const genuineSupabase = data.filter((row: any) => {
+        const comp = (row.company_name || '').toLowerCase();
+        const title = (row.title || '').toLowerCase();
+        const isPlaceholder = 
+          comp.includes('example') || 
+          comp.includes('test company') || 
+          !comp.trim() ||
+          (title === 'security guard' && [1, 4, 5].includes(row.id));
+        return !isPlaceholder;
+      });
+      supabaseJobs = genuineSupabase.map(mapSupabaseJobToVacancy);
     }
   } catch (err) {
     console.warn('Supabase fetchVacancies error:', err);
@@ -151,16 +168,23 @@ export async function fetchVacancies(options?: {
 
   // Get local/sample vacancies
   const local = getStored<JobVacancy[]>(STORAGE_KEYS.VACANCIES, INITIAL_VACANCIES);
+  const baseVacancies = (local && local.length >= INITIAL_VACANCIES.length) ? local : INITIAL_VACANCIES;
 
-  // Merge: Supabase jobs take priority, plus complementary sample vacancies
-  const existingTitles = new Set(supabaseJobs.map(j => j.title.toLowerCase().trim()));
-  const existingIds = new Set(supabaseJobs.map(j => j.id));
+  // Merge: all 30 genuine vacancies plus non-duplicate Supabase jobs
+  const vacancyMap = new Map<string, JobVacancy>();
+  
+  // First insert initial 30 real vacancies
+  baseVacancies.forEach(v => vacancyMap.set(v.id, v));
 
-  const complementaryVacancies = local.filter(
-    v => !existingIds.has(v.id) && !existingTitles.has(v.title.toLowerCase().trim())
-  );
+  // Merge Supabase jobs without overwriting existing IDs or duplicate titles
+  const existingTitles = new Set(baseVacancies.map(v => v.title.toLowerCase().trim()));
+  supabaseJobs.forEach(sj => {
+    if (!vacancyMap.has(sj.id) && !existingTitles.has(sj.title.toLowerCase().trim())) {
+      vacancyMap.set(sj.id, sj);
+    }
+  });
 
-  const combined = [...supabaseJobs, ...complementaryVacancies];
+  const combined = Array.from(vacancyMap.values());
   return filterAndSortVacancies(combined, options);
 }
 
@@ -665,6 +689,200 @@ export async function markApplicationPaid(
   return { application: targetApp, payment: paymentRecord };
 }
 
+export async function submitApplicationAwaitingVerification(data: {
+  applicationId?: string;
+  vacancyId: string;
+  jobSeekerId: string;
+  coverLetter: string;
+  cvPath?: string;
+  cvFileName?: string;
+  phoneNumber: string;
+  mpesaReceiptNumber: string;
+  amount?: number;
+}): Promise<{ application: JobApplication; payment: PaymentRecord }> {
+  const refNum = `KLK-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+  const now = new Date().toISOString();
+  const cleanReceipt = data.mpesaReceiptNumber.trim().toUpperCase();
+
+  const apps = getStored<JobApplication[]>(STORAGE_KEYS.APPLICATIONS, []);
+  let appIndex = data.applicationId ? apps.findIndex(a => a.id === data.applicationId) : -1;
+  let targetApp: JobApplication;
+
+  if (appIndex >= 0) {
+    targetApp = {
+      ...apps[appIndex],
+      cover_letter: data.coverLetter || apps[appIndex].cover_letter,
+      cv_path: data.cvPath || apps[appIndex].cv_path,
+      cv_file_name: data.cvFileName || apps[appIndex].cv_file_name,
+      status: 'pending_verification',
+      payment_status: 'awaiting_payment',
+      updated_at: now,
+    };
+    apps[appIndex] = targetApp;
+  } else {
+    targetApp = {
+      id: data.applicationId || `app-${Date.now()}`,
+      vacancy_id: data.vacancyId,
+      job_seeker_id: data.jobSeekerId,
+      cover_letter: data.coverLetter,
+      cv_path: data.cvPath,
+      cv_file_name: data.cvFileName,
+      status: 'pending_verification',
+      payment_status: 'awaiting_payment',
+      reference_number: refNum,
+      created_at: now,
+      updated_at: now,
+    };
+    apps.unshift(targetApp);
+  }
+  saveStored(STORAGE_KEYS.APPLICATIONS, apps);
+
+  const payments = getStored<PaymentRecord[]>(STORAGE_KEYS.PAYMENTS, []);
+  let payIndex = payments.findIndex(p => p.application_id === targetApp.id);
+  let paymentRecord: PaymentRecord;
+
+  if (payIndex >= 0) {
+    paymentRecord = {
+      ...payments[payIndex],
+      phone_number: data.phoneNumber || payments[payIndex].phone_number,
+      mpesa_receipt_number: cleanReceipt,
+      amount: data.amount || 150,
+      status: 'awaiting_verification',
+      updated_at: now,
+    };
+    payments[payIndex] = paymentRecord;
+  } else {
+    paymentRecord = {
+      id: `pay-${Date.now()}`,
+      application_id: targetApp.id,
+      job_seeker_id: targetApp.job_seeker_id,
+      amount: data.amount || 150,
+      currency: 'KES',
+      phone_number: data.phoneNumber,
+      mpesa_receipt_number: cleanReceipt,
+      transaction_date: now,
+      status: 'awaiting_verification',
+      created_at: now,
+      updated_at: now,
+    };
+    payments.unshift(paymentRecord);
+  }
+  saveStored(STORAGE_KEYS.PAYMENTS, payments);
+
+  targetApp.payment = paymentRecord;
+
+  try {
+    await supabase.from('applications').insert({
+      job_id: data.vacancyId,
+      user_id: data.jobSeekerId,
+      cover_letter: data.coverLetter,
+      status: 'pending_verification',
+      created_at: now,
+    });
+  } catch (e) {}
+
+  return { application: targetApp, payment: paymentRecord };
+}
+
+export async function confirmManualPayment(
+  applicationId: string,
+  verifiedBy: string = 'Admin (Seno Oloisiligayu)'
+): Promise<{ application: JobApplication; payment?: PaymentRecord }> {
+  const now = new Date().toISOString();
+  const apps = getStored<JobApplication[]>(STORAGE_KEYS.APPLICATIONS, []);
+  const appIndex = apps.findIndex(a => a.id === applicationId);
+
+  if (appIndex === -1) {
+    throw new Error('Application not found');
+  }
+
+  const app = apps[appIndex];
+  app.payment_status = 'paid';
+  if (app.status === 'pending_verification') {
+    app.status = 'submitted';
+  }
+  app.updated_at = now;
+  apps[appIndex] = app;
+  saveStored(STORAGE_KEYS.APPLICATIONS, apps);
+
+  const payments = getStored<PaymentRecord[]>(STORAGE_KEYS.PAYMENTS, []);
+  const payIndex = payments.findIndex(p => p.application_id === applicationId);
+  let updatedPay: PaymentRecord | undefined;
+
+  if (payIndex >= 0) {
+    payments[payIndex].status = 'completed';
+    payments[payIndex].verified_by = verifiedBy;
+    payments[payIndex].verified_at = now;
+    payments[payIndex].updated_at = now;
+    updatedPay = payments[payIndex];
+    saveStored(STORAGE_KEYS.PAYMENTS, payments);
+  } else {
+    updatedPay = {
+      id: `pay-${Date.now()}`,
+      application_id: app.id,
+      job_seeker_id: app.job_seeker_id,
+      amount: 150,
+      currency: 'KES',
+      phone_number: app.profile?.phone || '254700000000',
+      mpesa_receipt_number: `KLK${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
+      status: 'completed',
+      verified_by: verifiedBy,
+      verified_at: now,
+      created_at: now,
+      updated_at: now,
+    };
+    payments.unshift(updatedPay);
+    saveStored(STORAGE_KEYS.PAYMENTS, payments);
+  }
+
+  app.payment = updatedPay;
+
+  try {
+    await supabase.from('applications').update({
+      status: app.status,
+      updated_at: now,
+    }).eq('id', applicationId);
+  } catch (e) {}
+
+  return { application: app, payment: updatedPay };
+}
+
+export async function rejectManualPayment(
+  applicationId: string,
+  reason: string = 'M-Pesa transaction code could not be verified on 0790771321'
+): Promise<JobApplication> {
+  const now = new Date().toISOString();
+  const apps = getStored<JobApplication[]>(STORAGE_KEYS.APPLICATIONS, []);
+  const appIndex = apps.findIndex(a => a.id === applicationId);
+
+  if (appIndex >= 0) {
+    apps[appIndex].payment_status = 'failed';
+    apps[appIndex].status = 'rejected';
+    apps[appIndex].updated_at = now;
+    saveStored(STORAGE_KEYS.APPLICATIONS, apps);
+
+    const payments = getStored<PaymentRecord[]>(STORAGE_KEYS.PAYMENTS, []);
+    const payIndex = payments.findIndex(p => p.application_id === applicationId);
+    if (payIndex >= 0) {
+      payments[payIndex].status = 'failed';
+      payments[payIndex].failure_reason = reason;
+      payments[payIndex].updated_at = now;
+      saveStored(STORAGE_KEYS.PAYMENTS, payments);
+    }
+
+    try {
+      await supabase.from('applications').update({
+        status: 'rejected',
+        updated_at: now,
+      }).eq('id', applicationId);
+    } catch (e) {}
+
+    return apps[appIndex];
+  }
+
+  throw new Error('Application not found');
+}
+
 export async function updateApplicationStatus(
   applicationId: string, 
   status: ApplicationStatus
@@ -712,9 +930,10 @@ export async function getAdminStats(): Promise<AdminStats> {
   const oneMonthAgo = new Date(now.getTime() - 30 * 86400000);
 
   const paidApps = applications.filter(a => a.payment_status === 'paid');
-  const appsToday = paidApps.filter(a => a.created_at.startsWith(todayStr)).length;
-  const appsWeek = paidApps.filter(a => new Date(a.created_at) >= oneWeekAgo).length;
-  const appsMonth = paidApps.filter(a => new Date(a.created_at) >= oneMonthAgo).length;
+  const pendingApps = applications.filter(a => a.payment_status === 'awaiting_payment' || a.status === 'pending_verification');
+  const appsToday = applications.filter(a => a.created_at.startsWith(todayStr)).length;
+  const appsWeek = applications.filter(a => new Date(a.created_at) >= oneWeekAgo).length;
+  const appsMonth = applications.filter(a => new Date(a.created_at) >= oneMonthAgo).length;
 
   const completedPayments = payments.filter(p => p.status === 'completed');
   const totalRevenueKes = completedPayments.reduce((sum, p) => sum + (p.amount || 150), 0);
@@ -724,7 +943,8 @@ export async function getAdminStats(): Promise<AdminStats> {
     totalJobs: vacancies.length,
     publishedJobs: published,
     draftJobs: drafts,
-    totalApplications: paidApps.length,
+    totalApplications: applications.length,
+    pendingVerificationApplications: pendingApps.length,
     applicationsToday: appsToday,
     applicationsThisWeek: appsWeek,
     applicationsThisMonth: appsMonth,
@@ -817,3 +1037,75 @@ export function deleteLocation(id: string): void {
   const locs = getLocations().filter(l => l.id !== id);
   saveStored(STORAGE_KEYS.LOCATIONS, locs);
 }
+
+// -------------------------------------------------------------
+// 10. SUPABASE CLOUD DATABASE SYNC & DIAGNOSTICS
+// -------------------------------------------------------------
+
+export interface SupabaseStatusResponse {
+  success: boolean;
+  supabaseUrl: string;
+  hasServiceRoleKey: boolean;
+  totalJobsInSupabase: number;
+  placeholderCount: number;
+  genuineCount: number;
+  expectedTotal: number;
+  jobs: Array<{
+    id: number;
+    title: string;
+    company_name: string;
+    location: string;
+    county: string;
+    category: string;
+    status: string;
+  }>;
+  error?: string;
+}
+
+export async function fetchSupabaseStatus(): Promise<SupabaseStatusResponse | null> {
+  try {
+    const res = await fetch('/api/supabase/status');
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+    console.warn('Error fetching supabase status:', e);
+  }
+  return null;
+}
+
+export async function fetchSupabaseMigrationSql(): Promise<string | null> {
+  try {
+    const res = await fetch('/api/supabase/sql');
+    if (res.ok) {
+      const data = await res.json();
+      return data.sql || null;
+    }
+  } catch (e) {
+    console.warn('Error fetching supabase migration SQL:', e);
+  }
+  return null;
+}
+
+export async function syncVacanciesToSupabase(serviceRoleKey?: string): Promise<{ 
+  success: boolean; 
+  message?: string; 
+  count?: number; 
+  error?: string;
+  hint?: string;
+}> {
+  try {
+    const res = await fetch('/api/supabase/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ serviceRoleKey: serviceRoleKey?.trim() })
+    });
+    return await res.json();
+  } catch (e: any) {
+    return { 
+      success: false, 
+      error: e.message || 'Network error communicating with synchronization API' 
+    };
+  }
+}
+

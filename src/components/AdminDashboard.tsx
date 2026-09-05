@@ -26,7 +26,13 @@ import {
   getLocations, 
   saveLocation, 
   deleteLocation,
-  getCVDataUrl
+  getCVDataUrl,
+  confirmManualPayment,
+  rejectManualPayment,
+  fetchSupabaseStatus,
+  fetchSupabaseMigrationSql,
+  syncVacanciesToSupabase,
+  SupabaseStatusResponse
 } from '../services/appService';
 import { 
   ShieldCheck, 
@@ -48,13 +54,20 @@ import {
   Filter, 
   Save, 
   RefreshCw,
-  DollarSign
+  DollarSign,
+  Database,
+  Copy,
+  Check,
+  ExternalLink,
+  Code,
+  Key,
+  AlertTriangle
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
   const { user, isAdmin, signOut } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'jobs' | 'applications' | 'seekers' | 'payments' | 'categories'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'jobs' | 'applications' | 'seekers' | 'payments' | 'categories' | 'supabase'>('overview');
 
   // Stats & Data States
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -65,6 +78,15 @@ export const AdminDashboard: React.FC = () => {
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Supabase Cloud Sync States
+  const [supabaseStatus, setSupabaseStatus] = useState<SupabaseStatusResponse | null>(null);
+  const [supabaseSql, setSupabaseSql] = useState<string>('');
+  const [serviceRoleKeyInput, setServiceRoleKeyInput] = useState<string>('');
+  const [isSyncingSupabase, setIsSyncingSupabase] = useState(false);
+  const [supabaseSyncMessage, setSupabaseSyncMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
+  const [copiedSql, setCopiedSql] = useState(false);
+  const [showSqlViewer, setShowSqlViewer] = useState(false);
 
   // Job Editor Modal State
   const [isEditingJob, setIsEditingJob] = useState(false);
@@ -109,8 +131,57 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const loadSupabaseInfo = async () => {
+    try {
+      const [status, sql] = await Promise.all([
+        fetchSupabaseStatus(),
+        fetchSupabaseMigrationSql()
+      ]);
+      if (status) setSupabaseStatus(status);
+      if (sql) setSupabaseSql(sql);
+    } catch (e) {
+      console.warn('Error loading Supabase info:', e);
+    }
+  };
+
+  const handleDirectSyncSupabase = async () => {
+    setIsSyncingSupabase(true);
+    setSupabaseSyncMessage(null);
+    try {
+      const res = await syncVacanciesToSupabase(serviceRoleKeyInput);
+      if (res.success) {
+        setSupabaseSyncMessage({
+          type: 'success',
+          text: res.message || `Successfully synced ${res.count || 30} vacancies to Supabase cloud database!`
+        });
+        await loadSupabaseInfo();
+        await loadAllData();
+      } else {
+        setSupabaseSyncMessage({
+          type: 'error',
+          text: res.error || 'Failed to sync to Supabase. Check your service role key or use the SQL Migration tab.'
+        });
+      }
+    } catch (err: any) {
+      setSupabaseSyncMessage({
+        type: 'error',
+        text: err.message || 'An unexpected error occurred.'
+      });
+    } finally {
+      setIsSyncingSupabase(false);
+    }
+  };
+
+  const handleCopySql = () => {
+    if (!supabaseSql) return;
+    navigator.clipboard.writeText(supabaseSql);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 3000);
+  };
+
   useEffect(() => {
     loadAllData();
+    loadSupabaseInfo();
   }, []);
 
   if (!isAdmin) {
@@ -192,6 +263,41 @@ export const AdminDashboard: React.FC = () => {
     loadAllData();
   };
 
+  // Confirm Manual M-Pesa Payment
+  const [verifyingAppId, setVerifyingAppId] = useState<string | null>(null);
+
+  const handleConfirmPayment = async (appId: string) => {
+    try {
+      setVerifyingAppId(appId);
+      await confirmManualPayment(appId, user?.fullName || 'Admin (Seno Oloisiligayu)');
+      await loadAllData();
+      if (selectedApp && selectedApp.id === appId) {
+        setSelectedApp(prev => prev ? { ...prev, status: 'submitted', payment_status: 'paid' } : null);
+      }
+    } catch (err: any) {
+      alert('Failed to confirm payment: ' + (err?.message || 'Unknown error'));
+    } finally {
+      setVerifyingAppId(null);
+    }
+  };
+
+  const handleRejectPayment = async (appId: string) => {
+    if (window.confirm('Are you sure you want to reject this payment receipt? The application will be marked as rejected.')) {
+      try {
+        setVerifyingAppId(appId);
+        await rejectManualPayment(appId, 'Code could not be verified on 0790 771 321');
+        await loadAllData();
+        if (selectedApp && selectedApp.id === appId) {
+          setSelectedApp(prev => prev ? { ...prev, status: 'rejected', payment_status: 'failed' } : null);
+        }
+      } catch (err: any) {
+        alert('Failed to reject payment: ' + (err?.message || 'Unknown error'));
+      } finally {
+        setVerifyingAppId(null);
+      }
+    }
+  };
+
   // Add Category
   const handleAddCategory = () => {
     if (!newCatName.trim()) return;
@@ -226,8 +332,15 @@ export const AdminDashboard: React.FC = () => {
 
   const filteredApps = applications.filter(a => {
     if (appFilterStatus === 'all') return true;
+    if (appFilterStatus === 'pending_verification') {
+      return a.status === 'pending_verification' || a.payment_status === 'awaiting_payment';
+    }
     return a.status === appFilterStatus;
   });
+
+  const pendingVerificationApps = applications.filter(
+    a => a.status === 'pending_verification' || a.payment_status === 'awaiting_payment'
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -294,6 +407,11 @@ export const AdminDashboard: React.FC = () => {
           }`}
         >
           <FileText className="w-4 h-4" /> Applications ({applications.length})
+          {pendingVerificationApps.length > 0 && (
+            <span className="bg-amber-400 text-amber-950 font-black px-1.5 py-0.5 rounded-full text-[10px] animate-pulse">
+              {pendingVerificationApps.length} pending
+            </span>
+          )}
         </button>
         <button
           onClick={() => setActiveTab('seekers')}
@@ -319,11 +437,64 @@ export const AdminDashboard: React.FC = () => {
         >
           <MapPin className="w-4 h-4" /> Categories & Locations
         </button>
+        <button
+          onClick={() => {
+            setActiveTab('supabase');
+            loadSupabaseInfo();
+          }}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            activeTab === 'supabase' ? 'bg-emerald-700 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Database className="w-4 h-4 text-emerald-400" /> Supabase Cloud Sync
+          {supabaseStatus && supabaseStatus.placeholderCount > 0 && (
+            <span className="bg-amber-400 text-amber-950 font-black px-1.5 py-0.5 rounded-full text-[10px]">
+              Sync Needed
+            </span>
+          )}
+        </button>
       </div>
 
       {/* 1. OVERVIEW TAB */}
       {activeTab === 'overview' && stats && (
         <div className="space-y-8">
+          {/* Pending Verification Notice */}
+          {pendingVerificationApps.length > 0 && (
+            <div className="bg-amber-50 border-2 border-amber-300 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-in fade-in">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-200 text-amber-900 flex items-center justify-center shrink-0">
+                  <Clock className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-900 bg-amber-200/90 px-2 py-0.5 rounded">
+                      Action Required
+                    </span>
+                    <span className="text-xs text-amber-800 font-semibold">
+                      Manual M-Pesa / Pochi la Biashara
+                    </span>
+                  </div>
+                  <h4 className="text-base sm:text-lg font-black text-amber-950 mt-0.5">
+                    {pendingVerificationApps.length} Application{pendingVerificationApps.length > 1 ? 's' : ''} Awaiting Payment Confirmation
+                  </h4>
+                  <p className="text-xs text-amber-800 mt-0.5">
+                    Job seekers have provided transaction codes for payment sent to <strong>0790 771 321 (SENO OLOISILIGAYU)</strong>. Please confirm receipt to advance their applications.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setActiveTab('applications');
+                  setAppFilterStatus('pending_verification');
+                }}
+                className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all self-start sm:self-auto shrink-0 flex items-center gap-1.5"
+              >
+                <span>Review &amp; Verify Now</span>
+                <Clock className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* KPI Metrics Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
@@ -376,9 +547,16 @@ export const AdminDashboard: React.FC = () => {
                       {app.profile?.full_name || 'Applicant'} • Ref: {app.reference_number}
                     </p>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold capitalize">
-                    {app.status}
-                  </span>
+                  {app.status === 'pending_verification' || app.payment_status === 'awaiting_payment' ? (
+                    <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[10px] flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-amber-700 animate-pulse" />
+                      Pending Verification
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold capitalize text-[10px]">
+                      {app.status}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -417,6 +595,35 @@ export const AdminDashboard: React.FC = () => {
       {/* 2. JOBS TAB */}
       {activeTab === 'jobs' && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+          {/* Supabase Sync Banner */}
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                <Database className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-emerald-950">
+                  Supabase Cloud Database Sync
+                </div>
+                <div className="text-[11px] text-emerald-700">
+                  {supabaseStatus && supabaseStatus.placeholderCount > 0 
+                    ? `Remote Supabase contains ${supabaseStatus.placeholderCount} placeholder rows that should be updated to these 30 verified jobs.`
+                    : 'Manage remote PostgreSQL tables, run SQL migration, or perform direct API sync.'}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setActiveTab('supabase');
+                loadSupabaseInfo();
+              }}
+              className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shrink-0 flex items-center gap-1.5 transition-all shadow-xs"
+            >
+              <Database className="w-3.5 h-3.5" />
+              Supabase Sync Manager &rarr;
+            </button>
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -532,7 +739,8 @@ export const AdminDashboard: React.FC = () => {
                 onChange={(e) => setAppFilterStatus(e.target.value)}
                 className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold"
               >
-                <option value="all">All Statuses</option>
+                <option value="all">All Statuses ({applications.length})</option>
+                <option value="pending_verification">Pending Verification ({pendingVerificationApps.length})</option>
                 <option value="submitted">Submitted</option>
                 <option value="reviewed">Reviewed</option>
                 <option value="shortlisted">Shortlisted</option>
@@ -564,10 +772,25 @@ export const AdminDashboard: React.FC = () => {
                       <p className="text-[11px] text-slate-500">{a.vacancy?.organization}</p>
                     </td>
                     <td className="p-3.5">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold text-[11px]">
-                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                        KSh 150 (M-Pesa Verified)
-                      </span>
+                      {a.status === 'pending_verification' || a.payment_status === 'awaiting_payment' ? (
+                        <div className="space-y-1">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[11px]">
+                            <Clock className="w-3 h-3 text-amber-700 animate-pulse" />
+                            Awaiting Confirmation
+                          </span>
+                          <p className="text-[11px] font-mono text-slate-700">
+                            Code: <strong className="text-emerald-800 font-black">{a.payment?.mpesa_receipt_number || 'Awaiting'}</strong>
+                          </p>
+                          <p className="text-[10px] text-slate-500">
+                            From: {a.payment?.phone_number || a.profile?.phone || 'N/A'}
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold text-[11px]">
+                          <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                          KSh 150 (M-Pesa Verified)
+                        </span>
+                      )}
                     </td>
                     <td className="p-3.5">
                       <select
@@ -575,6 +798,7 @@ export const AdminDashboard: React.FC = () => {
                         onChange={(e) => handleAppStatusChange(a.id, e.target.value as ApplicationStatus)}
                         className="px-2.5 py-1 rounded-lg border border-slate-300 font-bold text-[11px] bg-white capitalize"
                       >
+                        <option value="pending_verification">Pending Verification</option>
                         <option value="submitted">Submitted</option>
                         <option value="reviewed">Reviewed</option>
                         <option value="shortlisted">Shortlisted</option>
@@ -582,12 +806,41 @@ export const AdminDashboard: React.FC = () => {
                       </select>
                     </td>
                     <td className="p-3.5">
-                      <button
-                        onClick={() => setSelectedApp(a)}
-                        className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs"
-                      >
-                        View CV & Details
-                      </button>
+                      {a.status === 'pending_verification' || a.payment_status === 'awaiting_payment' ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleConfirmPayment(a.id)}
+                            disabled={verifyingAppId === a.id}
+                            className="px-2.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center gap-1 shadow-xs transition-colors"
+                            title="Confirm M-Pesa receipt and approve application"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            {verifyingAppId === a.id ? 'Confirming...' : 'Confirm'}
+                          </button>
+                          <button
+                            onClick={() => handleRejectPayment(a.id)}
+                            disabled={verifyingAppId === a.id}
+                            className="px-2 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs flex items-center gap-1 transition-colors"
+                            title="Reject invalid transaction code"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                            Reject
+                          </button>
+                          <button
+                            onClick={() => setSelectedApp(a)}
+                            className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs"
+                          >
+                            Details
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setSelectedApp(a)}
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs"
+                        >
+                          View CV & Details
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -679,9 +932,31 @@ export const AdminDashboard: React.FC = () => {
                     <td className="p-3.5 font-bold text-emerald-700">KSh {p.amount || 150}.00</td>
                     <td className="p-3.5 font-mono text-slate-500">{p.application_id}</td>
                     <td className="p-3.5">
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
-                        {p.status}
-                      </span>
+                      {p.status === 'awaiting_verification' ? (
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-bold flex items-center gap-1 text-[10px]">
+                            <Clock className="w-3 h-3 text-amber-700 animate-pulse" />
+                            Awaiting Confirmation
+                          </span>
+                          {p.application_id && (
+                            <button
+                              onClick={() => handleConfirmPayment(p.application_id)}
+                              disabled={verifyingAppId === p.application_id}
+                              className="px-2 py-0.5 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[10px] shadow-xs"
+                            >
+                              Confirm
+                            </button>
+                          )}
+                        </div>
+                      ) : p.status === 'failed' ? (
+                        <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]">
+                          Failed / Rejected
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] capitalize">
+                          {p.status}
+                        </span>
+                      )}
                     </td>
                     <td className="p-3.5 text-slate-500">
                       {new Date(p.created_at).toLocaleString('en-KE')}
@@ -784,6 +1059,329 @@ export const AdminDashboard: React.FC = () => {
                   </button>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 7. SUPABASE CLOUD DATABASE SYNC TAB */}
+      {activeTab === 'supabase' && (
+        <div className="space-y-8">
+          {/* Top Status & Overview Card */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                    PostgreSQL / Supabase Cloud
+                  </span>
+                  <span className="text-xs text-slate-500 font-mono">
+                    wsbwuctjqpteiftiapul.supabase.co
+                  </span>
+                </div>
+                <h2 className="text-xl font-black text-slate-900 font-serif">
+                  Supabase Database Synchronization
+                </h2>
+                <p className="text-xs text-slate-600 mt-1">
+                  Manage synchronization between Kazi Link Kenya's 30 verified job vacancies and your Supabase PostgreSQL cloud database.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={loadSupabaseInfo}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-2 transition-all"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Refresh Status
+                </button>
+                <a
+                  href="https://supabase.com/dashboard/project/wsbwuctjqpteiftiapul/sql/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Supabase SQL Editor
+                </a>
+              </div>
+            </div>
+
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  Local Verified Vacancies
+                </div>
+                <div className="text-2xl font-black text-slate-900">
+                  {jobs.length} Jobs
+                </div>
+                <div className="text-[11px] text-emerald-700 font-semibold mt-1">
+                  ✓ 9 Kenyan locations, 22 employers
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  Supabase Cloud Jobs Count
+                </div>
+                <div className="text-2xl font-black text-slate-900">
+                  {supabaseStatus ? `${supabaseStatus.totalJobsInSupabase} Rows` : 'Checking...'}
+                </div>
+                <div className="text-[11px] text-slate-500 mt-1">
+                  {supabaseStatus?.genuineCount ? `${supabaseStatus.genuineCount} genuine verified` : '0 verified'}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  Legacy Placeholder Rows
+                </div>
+                <div className="text-2xl font-black text-amber-600">
+                  {supabaseStatus ? `${supabaseStatus.placeholderCount} Rows` : 'Checking...'}
+                </div>
+                <div className="text-[11px] text-amber-700 font-medium mt-1">
+                  {supabaseStatus && supabaseStatus.placeholderCount > 0 
+                    ? 'Requires replacement with 30 real jobs' 
+                    : 'Clean cloud database'}
+                </div>
+              </div>
+            </div>
+
+            {/* Status Notice */}
+            {supabaseStatus && supabaseStatus.placeholderCount > 0 && (
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="text-xs text-amber-900">
+                  <strong>Action Recommended:</strong> Your Supabase cloud table currently contains <strong>{supabaseStatus.placeholderCount} outdated placeholder jobs</strong> (such as <em>Example Security Ltd</em> and <em>Hotel Receptionist</em>). Use either <strong>Method 1 (SQL Migration)</strong> or <strong>Method 2 (API Sync)</strong> below to update Supabase with all 30 genuine vacancies.
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sync Methods Container */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* METHOD 1: 1-Click SQL Migration */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-800">
+                    Method 1 • Recommended & Instant
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium">Bypasses RLS Safely</span>
+                </div>
+
+                <h3 className="text-lg font-black text-slate-900 font-serif">
+                  Supabase SQL Editor Migration
+                </h3>
+
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Supabase enables PostgreSQL Row-Level Security (RLS) on public tables by default. Executing this migration query in your Supabase SQL Editor runs with administrative rights, immediately removing placeholder rows and inserting all 30 verified Kenyan job vacancies.
+                </p>
+
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                  <div className="font-bold text-slate-900">Quick 3-Step Execution:</div>
+                  <ol className="list-decimal list-inside space-y-1 text-slate-600">
+                    <li>Click the <strong>Copy SQL Migration Query</strong> button below.</li>
+                    <li>Click <strong>Open Supabase SQL Editor</strong> to open your project.</li>
+                    <li>Paste the query into the SQL Editor and click <strong>RUN</strong>.</li>
+                  </ol>
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={handleCopySql}
+                    className="flex-1 px-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+                  >
+                    {copiedSql ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-200" />
+                        Copied to Clipboard!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy SQL Migration Query
+                      </>
+                    )}
+                  </button>
+
+                  <a
+                    href="https://supabase.com/dashboard/project/wsbwuctjqpteiftiapul/sql/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Open Supabase
+                  </a>
+                </div>
+
+                <button
+                  onClick={() => setShowSqlViewer(!showSqlViewer)}
+                  className="w-full text-center text-xs text-slate-500 hover:text-slate-800 font-semibold py-1 flex items-center justify-center gap-1"
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  {showSqlViewer ? 'Hide SQL Preview' : 'Preview SQL Migration Query'}
+                </button>
+
+                {showSqlViewer && (
+                  <div className="relative mt-2">
+                    <pre className="p-4 bg-slate-900 text-slate-100 rounded-2xl text-[11px] font-mono overflow-x-auto max-h-60 border border-slate-800">
+                      {supabaseSql || 'Loading SQL script...'}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* METHOD 2: Direct API Synchronization with Service Role Key */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800">
+                    Method 2 • Direct API Push
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium">Automated</span>
+                </div>
+
+                <h3 className="text-lg font-black text-slate-900 font-serif">
+                  Automated Supabase Sync
+                </h3>
+
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Provide your Supabase <code className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-[11px] text-purple-700">service_role</code> secret key (from Supabase Dashboard &gt; Project Settings &gt; API) to bypass RLS and perform automated synchronization right now.
+                </p>
+
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                    Supabase Service Role Secret Key
+                  </label>
+                  <div className="relative">
+                    <Key className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="password"
+                      value={serviceRoleKeyInput}
+                      onChange={(e) => setServiceRoleKeyInput(e.target.value)}
+                      placeholder="Paste Supabase service_role secret here..."
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-xs font-mono focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    This key is only used in memory for this session to update the table and will never be exposed.
+                  </p>
+                </div>
+
+                {supabaseSyncMessage && (
+                  <div className={`p-3 rounded-xl text-xs flex items-start gap-2 ${
+                    supabaseSyncMessage.type === 'success' 
+                      ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' 
+                      : 'bg-rose-50 text-rose-900 border border-rose-200'
+                  }`}>
+                    {supabaseSyncMessage.type === 'success' ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    )}
+                    <span>{supabaseSyncMessage.text}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4">
+                <button
+                  onClick={handleDirectSyncSupabase}
+                  disabled={isSyncingSupabase}
+                  className="w-full px-4 py-3 rounded-xl bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white font-black text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+                >
+                  {isSyncingSupabase ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Syncing 30 Jobs to Supabase...
+                    </>
+                  ) : (
+                    <>
+                      <Database className="w-4 h-4" />
+                      Sync 30 Jobs to Supabase Now
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Current Live Supabase Table Inspection */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-black text-slate-900 font-serif">
+                  Live Supabase Records Table (public.jobs)
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Real-time query of rows currently residing in your remote Supabase cloud database.
+                </p>
+              </div>
+              <button
+                onClick={loadSupabaseInfo}
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Refresh Rows
+              </button>
+            </div>
+
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+                  <tr>
+                    <th className="px-4 py-3">ID</th>
+                    <th className="px-4 py-3">Job Title</th>
+                    <th className="px-4 py-3">Company / Employer</th>
+                    <th className="px-4 py-3">Location</th>
+                    <th className="px-4 py-3">Category</th>
+                    <th className="px-4 py-3">Type</th>
+                    <th className="px-4 py-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {supabaseStatus && supabaseStatus.jobs.length > 0 ? (
+                    supabaseStatus.jobs.map((j) => {
+                      const isExample = !j.company_name || j.company_name.toLowerCase().includes('example') || j.company_name.toLowerCase().includes('test company');
+                      return (
+                        <tr key={j.id} className={isExample ? 'bg-amber-50/50' : 'hover:bg-slate-50/50'}>
+                          <td className="px-4 py-3 font-mono text-slate-500">{j.id}</td>
+                          <td className="px-4 py-3 font-bold text-slate-900">{j.title}</td>
+                          <td className="px-4 py-3 text-slate-700">
+                            {j.company_name || <span className="italic text-slate-400">Not set</span>}
+                            {isExample && (
+                              <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 text-[10px] font-bold">
+                                Legacy Placeholder
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-slate-600">{j.location} {j.county ? `(${j.county})` : ''}</td>
+                          <td className="px-4 py-3 text-slate-600">{j.category}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              isExample ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                            }`}>
+                              {isExample ? 'Needs Update' : 'Verified'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 font-mono text-slate-500">{j.status}</td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
+                        {supabaseStatus ? 'No job records found in Supabase public.jobs table.' : 'Loading records from Supabase...'}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1018,16 +1616,75 @@ export const AdminDashboard: React.FC = () => {
               )}
             </div>
 
-            {/* Verified Payment Badge */}
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs flex items-center justify-between text-emerald-950">
-              <span className="font-bold flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                M-Pesa Verified Fee: KSh 150.00
-              </span>
-              <span className="font-mono text-[11px]">
-                Receipt: {selectedApp.payment?.mpesa_receipt_number || 'KLK' + selectedApp.reference_number.substring(4)}
-              </span>
-            </div>
+            {/* Payment Status / Verification Action Box */}
+            {selectedApp.status === 'pending_verification' || selectedApp.payment_status === 'awaiting_payment' ? (
+              <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl text-xs space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-amber-700 animate-pulse" />
+                    <div>
+                      <p className="font-bold text-amber-950 text-sm">Awaiting Manual Payment Confirmation</p>
+                      <p className="text-[11px] text-amber-800">Verify KSh 150 received on 0790 771 321 (Seno Oloisiligayu)</p>
+                    </div>
+                  </div>
+                  <span className="bg-amber-200 text-amber-950 font-bold px-2.5 py-0.5 rounded-full text-[10px]">
+                    Action Needed
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 bg-white p-3 rounded-xl border border-amber-200">
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">M-Pesa Transaction Code</span>
+                    <p className="font-mono font-bold text-emerald-800 text-sm">
+                      {selectedApp.payment?.mpesa_receipt_number || 'Under Review'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">Applicant Phone</span>
+                    <p className="font-bold text-slate-900 text-xs">
+                      {selectedApp.payment?.phone_number || selectedApp.profile?.phone || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">Amount Expected</span>
+                    <p className="font-bold text-slate-900 text-xs">KSh 150.00</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">Current Status</span>
+                    <p className="font-bold text-amber-700 text-xs">Awaiting Confirmation</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <button
+                    onClick={() => handleRejectPayment(selectedApp.id)}
+                    disabled={verifyingAppId === selectedApp.id}
+                    className="px-4 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Reject Code
+                  </button>
+                  <button
+                    onClick={() => handleConfirmPayment(selectedApp.id)}
+                    disabled={verifyingAppId === selectedApp.id}
+                    className="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    {verifyingAppId === selectedApp.id ? 'Confirming...' : 'Confirm Payment & Approve'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs flex items-center justify-between text-emerald-950">
+                <span className="font-bold flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  M-Pesa Verified Fee: KSh 150.00
+                </span>
+                <span className="font-mono text-[11px]">
+                  Receipt: {selectedApp.payment?.mpesa_receipt_number || 'KLK' + selectedApp.reference_number.substring(4)}
+                </span>
+              </div>
+            )}
 
             {/* Cover Letter */}
             <div className="space-y-1.5">

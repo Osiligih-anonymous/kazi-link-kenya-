@@ -91,7 +91,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSelect, hasApplied }) =
         <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 mb-4">
           <div className="flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span className="font-medium truncate">{job.location}</span>
+            <span className="font-medium truncate" title={`${job.location}${job.county ? `, ${job.county}` : ''}`}>
+              {job.location}{job.county ? ` (${job.county.replace(' County', '')})` : ''}
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <Banknote className="w-3.5 h-3.5 text-amber-600 shrink-0" />
